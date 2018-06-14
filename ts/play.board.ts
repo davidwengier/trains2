@@ -292,7 +292,7 @@ module trains.play {
             if (cell !== undefined) {
                 cell.turnAroundBrightEyes();
             }
-            this.saveTrack();
+            this.saveCells();
         }
 
         private newTrack(column: number, row: number): void {
@@ -310,7 +310,7 @@ module trains.play {
             } else {
                 this.cells[cellID].haveAThreeWay();
             }
-            this.saveTrack();
+            this.saveCells();
         }
 
         private eraseTrack(column: number, row: number): void {
@@ -319,7 +319,7 @@ module trains.play {
             var cell = this.cells[cellID];            
             if (cell !== undefined) {
                 delete this.cells[cellID];
-                this.saveTrack();
+                this.saveCells();
                 cell.destroy().done(() => {
                     var neighbours = this.getNeighbouringCells(column, row, true);
 
@@ -334,7 +334,7 @@ module trains.play {
             }
         }
         
-        private saveTrack(): void {
+        public saveCells(): void {
             if (util.toBoolean(localStorage.getItem("autosave"))) {
                 localStorage.setItem("cells", JSON.stringify(this.cells));
             }
@@ -354,7 +354,7 @@ module trains.play {
                 if (cell !== undefined) {
                     cell.switchTrack();
                 }
-                this.saveTrack();
+                this.saveCells();
             }
         }
         

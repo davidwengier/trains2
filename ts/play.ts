@@ -85,6 +85,9 @@ module trains.play {
                     $autosave.val("false");
                 }
                 trains.play.GameBoard.setAutoSave(!autosave);
+                if (!autosave) {
+                    trains.play.GameBoard.saveCells();
+                }
             });
 
             trains.event.On("speedchanged", (event, trainID: number, speed: number) => {

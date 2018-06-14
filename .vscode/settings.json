@@ -1,0 +1,8 @@
+{
+	"cSpell.ignorePaths": [
+		"**/.git/**",
+		".vscode",
+		"typings",
+		"ts",
+	]
+}
