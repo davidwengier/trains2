@@ -10,10 +10,15 @@ module trains.play {
             context.translate(this.x + 0.5, this.y + 0.5);
             trains.play.CellRenderer.clearCell(context);
 
-            if (GameBoard.showDiagnostics && GameBoard.trains.some(t => t.isTrainHere(this.column, this.row))) {
-                context.fillStyle = "#FF0000";
-                context.fillRect(0, 0, play.gridSize, play.gridSize);
-            }
+            if (GameBoard.showDiagnostics) {
+                if (GameBoard.trains.some(t => t.isTrainHere(this.column, this.row, true))) {
+                    context.fillStyle = "#0000FF";
+                    context.fillRect(0, 0, play.gridSize, play.gridSize);
+                } else if (GameBoard.trains.some(t => t.isTrainHere(this.column, this.row))) {
+                    context.fillStyle = "#FF0000";
+                    context.fillRect(0, 0, play.gridSize, play.gridSize);
+                }
+            }    
 
             switch (this.direction) {
                 case trains.play.Direction.Horizontal: {

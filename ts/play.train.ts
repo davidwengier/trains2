@@ -267,9 +267,9 @@ module trains.play {
         }
 
         public draw(context: CanvasRenderingContext2D, translate: boolean = true): void {
+            var angle = this.getTrainAngle();
             var x = this.coords.currentX;
             var y = this.coords.currentY;
-            var angle = Math.atan2(this.coords.previousX - x, this.coords.previousY - y);
 
             context.save();
 
@@ -285,27 +285,46 @@ module trains.play {
 
             context.restore();
 
+            if (play.GameBoard.showDiagnostics) {
+                var front = this.getFrontOfTrain();
+                context.fillStyle = "#00FF00";
+                context.fillRect(front.currentX - 2, front.currentY - 2, 4, 4);
+            }
+
             if ((this.carriage !== undefined) && translate) {
                 this.carriage.draw(context, translate);
                 this.drawLink(context);
             }
         }
 
+        public getFrontOfTrain(buffer: number = 0): TrainCoords {
+            var angle = this.getTrainAngle();
+            return {
+                currentX: this.coords.currentX - Math.sin(angle) * ((play.gridSize / 2) + buffer),
+                currentY: this.coords.currentY - Math.cos(angle) * ((play.gridSize / 2) + buffer),
+                previousX: 0,
+                previousY: 0
+            };
+        }
+
+        private getTrainAngle(): number {
+            return Math.atan2(this.coords.previousX - this.coords.currentX, this.coords.previousY - this.coords.currentY);
+        }
+
         public drawLighting(context: CanvasRenderingContext2D): void {
-            var x = this.coords.currentX;
-            var y = this.coords.currentY;
-            var angle = Math.atan2(this.coords.previousX - x, this.coords.previousY - y);
+            var angle = this.getTrainAngle();
             context.save();
-            context.translate(x, y);
+            context.translate(this.coords.currentX, this.coords.currentY);
             context.rotate((angle * -1) + ((this.imageReverse < 0) ? Math.PI : 0));
             trains.play.TrainRenderer.DrawChoochooLights(context);
             context.restore();
         }
 
-        public isTrainHere(column: number, row: number): boolean {
-            var myColumn = GameBoard.getGridCoord(this.coords.currentX);
-            var myRow = GameBoard.getGridCoord(this.coords.currentY);
-            if (this.carriage !== undefined) {
+        public isTrainHere(column: number, row: number, front: boolean = false): boolean {
+            var cx = front ? this.getFrontOfTrain() : this.coords;
+            var myColumn = GameBoard.getGridCoord(cx.currentX);
+            var myRow = GameBoard.getGridCoord(cx.currentY);
+            if (!front && this.carriage !== undefined) {
                 return ((column === myColumn && row === myRow) || this.carriage.isTrainHere(column, row));
             } else {
                 return column === myColumn && row === myRow;
@@ -334,9 +353,10 @@ module trains.play {
             context.restore();
         }
 
-        private collidesWith(coords: TrainCoords) : boolean {
-            var myColumn = GameBoard.getGridCoord(coords.currentX);
-            var myRow = GameBoard.getGridCoord(coords.currentY);
+        private collidesWith(coords: TrainCoords): boolean {
+            var frontCoords = this.getFrontOfTrain(10);
+            var myColumn = GameBoard.getGridCoord(frontCoords.currentX);
+            var myRow = GameBoard.getGridCoord(frontCoords.currentY);
             return GameBoard.trains.some(t => {
                 if (t === this) return false;
                 if (t.isTrainHere(myColumn, myRow)) {
