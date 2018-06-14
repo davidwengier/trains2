@@ -9,7 +9,6 @@
 module trains.play {
 
     export class Train {
-
         public defaultSpeed = 2;
 
         public coords: trains.play.TrainCoords;
@@ -98,6 +97,10 @@ module trains.play {
                 var cell = GameBoard.getCell(column, row);
                 if (cell !== undefined) {
                     var result = this.getNewCoordsForTrain(cell, this.coords, speed);
+                    if (checkCollision && this.collidesWith(result.coords)) {
+                        this.waitForTrafficToClear(result.coords);
+                        break;
+                    }
                     this.coords = result.coords;
                     speed = result.remainingSpeed;
                 }
@@ -109,9 +112,7 @@ module trains.play {
                 this.carriage.trainSpeed = this.trainSpeed;
                 this.carriage.chooChooMotherFucker(baseSpeed, false);
             }
-            if (checkCollision) {
-                this.wreckYourself();
-            }
+
             if (checkCollision && (this.nextSmoke < GameBoard.gameLoop.gameTimeElapsed)) {
                 var p = new ParticleSmoke();
                 p.x = this.coords.currentX;
@@ -306,10 +307,6 @@ module trains.play {
             }
         }
 
-        public wreckYourself(): void {
-            GameBoard.trains.forEach(t => t.clashOfTheTitans(t, this));
-        }
-
         public drawLink(context: CanvasRenderingContext2D): void {
             var sp1 = (trains.play.gridSize / 2) / Math.sqrt(Math.pow(this.coords.currentX - this.coords.previousX, 2) + Math.pow(this.coords.currentY - this.coords.previousY, 2));
             var x1 = this.coords.currentX - ((this.coords.currentX - this.coords.previousX) * sp1 * this.imageReverse);
@@ -332,19 +329,26 @@ module trains.play {
             context.restore();
         }
 
-        public clashOfTheTitans(train1: Train, train2: Train) : void {
-            var myColumn = GameBoard.getGridCoord(train1.coords.currentX);
-            var myRow = GameBoard.getGridCoord(train1.coords.currentY);
+        private collidesWith(coords: TrainCoords) : boolean {
+            var myColumn = GameBoard.getGridCoord(coords.currentX);
+            var myRow = GameBoard.getGridCoord(coords.currentY);
+            return GameBoard.trains.some(t => {
+                if (t === this) return false;
+                if (t.isTrainHere(myColumn, myRow)) {
+                    return true;
+                }
+                return false;
+            });
+        }
 
-            if (train1 !== train2 && train2.isTrainHere(myColumn, myRow) && !train1.isPaused) {
-                train1.isPaused = true;
-                var interval = setInterval(function () {
-                    if (!train2.isTrainHere(myColumn, myRow)) {
-                        clearInterval(interval);
-                        train1.isPaused = false;
-                    }
-                }, 500);
-            }
+        private waitForTrafficToClear(coords: TrainCoords) {
+            this.isPaused = true;
+            var interval = setInterval(() => {
+                if (!this.collidesWith(coords)) {
+                    clearInterval(interval);
+                    this.isPaused = false;
+                }
+            }, 500);
         }
     }
 }
