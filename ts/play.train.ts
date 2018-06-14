@@ -305,8 +305,8 @@ module trains.play {
             }
         }
 
-        public wreckYourself(): boolean {
-            return GameBoard.trains.some(t => t.clashOfTheTitans(t, this));
+        public wreckYourself(): void {
+            GameBoard.trains.forEach(t => t.clashOfTheTitans(t, this));
         }
 
         public drawLink(context: CanvasRenderingContext2D): void {
@@ -331,53 +331,19 @@ module trains.play {
             context.restore();
         }
 
-        public turnTheBeatAround(): void {
-            var x1 = this.coords.currentX;
-            var y1 = this.coords.currentY;
-
-            this.coords.currentX = this.coords.previousX;
-            this.coords.currentY = this.coords.previousY;
-
-            this.coords.previousX = x1;
-            this.coords.previousY = y1;
-            //Woo!
-            this.imageReverse *= -1;
-            if (this.carriage !== undefined) {
-                this.carriage.turnTheBeatAround();
-            }
-        }
-
-        public clashOfTheTitans(train1: Train, train2: Train) {
+        public clashOfTheTitans(train1: Train, train2: Train) : void {
             var myColumn = GameBoard.getGridCoord(train1.coords.currentX);
             var myRow = GameBoard.getGridCoord(train1.coords.currentY);
 
-            if (train1 !== train2 && train2.isTrainHere(myColumn, myRow)) {
-                if (train1.trainSpeed === train2.trainSpeed) {
-
-                    train2.turnTheBeatAround();
-                    train1.turnTheBeatAround();
-                    return true;
-                }
-                else if (train1.trainSpeed < train2.trainSpeed) {
-                    var speedDiff = train2.trainSpeed - train1.trainSpeed
-                    train1.turnTheBeatAround();
-                    train2.turnTheBeatAround();
-
-                    if ((train1.trainSpeed + speedDiff) > (play.gridSize / 2)) {
-                        train1.setTrainSpeed(play.gridSize / 2);
+            if (train1 !== train2 && train2.isTrainHere(myColumn, myRow) && train1.trainSpeed !== 0) {
+                var speed = train1.trainSpeed;
+                train1.setTrainSpeed(0);
+                var interval = setInterval(function () {
+                    if (!train2.isTrainHere(myColumn, myRow)) {
+                        clearInterval(interval);
+                        train1.setTrainSpeed(speed);
                     }
-                    else {
-                        train1.setTrainSpeed(train1.trainSpeed + speedDiff);
-                    }
-
-                    if ((train2.trainSpeed - speedDiff) < 1) {
-                        train2.setTrainSpeed(1);
-                    }
-                    else {
-                        train2.setTrainSpeed(train2.trainSpeed - speedDiff);
-                    }
-                }
-                return true;
+                }, 500);
             }
         }
     }

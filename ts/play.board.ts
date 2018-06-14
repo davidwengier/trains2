@@ -479,10 +479,6 @@ module trains.play {
                         this.selectedTrain.removeEndCarriage(this.selectedTrain);
                         break;
                     }
-                    case "turnaround": {
-                        this.selectedTrain.turnTheBeatAround();
-                        break;
-                    }
                 }
             } else {
                 this.hideTrainControls();
