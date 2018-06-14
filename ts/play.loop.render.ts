@@ -16,6 +16,9 @@ module trains.play {
         private dayToNightRatio = 5 / 12; //5 of 12 are night
 
         loopBody(): void {
+            if (this.board.showDiagnostics) {
+                trains.play.GameBoard.redraw();
+            }
             this.board.trainContext.clearRect(0, 0, this.board.trainCanvas.width, this.board.trainCanvas.height);
             this.board.lightingBufferContext.clearRect(0, 0, this.board.trainCanvas.width, this.board.trainCanvas.height);
 

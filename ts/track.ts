@@ -7,9 +7,13 @@ module trains.play {
     export class Track extends Cell {
         draw(context: CanvasRenderingContext2D): void {
             context.save();
-			//This is a comment - PushTest
             context.translate(this.x + 0.5, this.y + 0.5);
             trains.play.CellRenderer.clearCell(context);
+
+            if (GameBoard.showDiagnostics && GameBoard.trains.some(t => t.isTrainHere(this.column, this.row))) {
+                context.fillStyle = "#FF0000";
+                context.fillRect(0, 0, play.gridSize, play.gridSize);
+            }
 
             switch (this.direction) {
                 case trains.play.Direction.Horizontal: {

@@ -16,6 +16,7 @@ module trains.play {
 
         private lastCell: Cell;
         private directionToUse: Direction;
+        private isPaused: boolean;
 
         public trainColourIndex: number;
 
@@ -86,7 +87,7 @@ module trains.play {
         }
 
         public chooChooMotherFucker(speed: number, checkCollision: boolean = true): void {
-            if (this.trainSpeed === 0) return;
+            if (this.trainSpeed === 0 || this.isPaused) return;
             var baseSpeed = speed;
             speed *= this.trainSpeed;
             //Super small speeds cause MAJOR problems with the game loop.
@@ -138,11 +139,11 @@ module trains.play {
         }
 
         public hammerTime(): void {
-            this.setTrainSpeed(0);
+            this.isPaused = true;
         }
 
         public wakeMeUp(): void {
-            this.setTrainSpeed(this.defaultSpeed);
+            this.isPaused = false;
         }
 
         magicBullshitCompareTo(pen: number, sword: number): number {
@@ -335,13 +336,12 @@ module trains.play {
             var myColumn = GameBoard.getGridCoord(train1.coords.currentX);
             var myRow = GameBoard.getGridCoord(train1.coords.currentY);
 
-            if (train1 !== train2 && train2.isTrainHere(myColumn, myRow) && train1.trainSpeed !== 0) {
-                var speed = train1.trainSpeed;
-                train1.setTrainSpeed(0);
+            if (train1 !== train2 && train2.isTrainHere(myColumn, myRow) && !train1.isPaused) {
+                train1.isPaused = true;
                 var interval = setInterval(function () {
                     if (!train2.isTrainHere(myColumn, myRow)) {
                         clearInterval(interval);
-                        train1.setTrainSpeed(speed);
+                        train1.isPaused = false;
                     }
                 }, 500);
             }
