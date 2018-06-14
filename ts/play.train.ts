@@ -26,7 +26,7 @@ module trains.play {
 
         public carriage: trains.play.TrainCarriage;
 
-        public carriagePadding: number = 5;
+        public carriagePadding: number = 2;
 
         public nextSmoke = 0;
 
@@ -86,6 +86,9 @@ module trains.play {
         }
 
         public chooChooMotherFucker(speed: number, checkCollision: boolean = true): void {
+            if (checkCollision) {
+                this.drawParticles();
+            }
             if (this.trainSpeed === 0 || this.isPaused) return;
             var baseSpeed = speed;
             speed *= this.trainSpeed;
@@ -99,7 +102,7 @@ module trains.play {
                     var result = this.getNewCoordsForTrain(cell, this.coords, speed);
                     if (checkCollision && this.collidesWith(result.coords)) {
                         this.waitForTrafficToClear(result.coords);
-                        break;
+                        return;
                     }
                     this.coords = result.coords;
                     speed = result.remainingSpeed;
@@ -112,8 +115,10 @@ module trains.play {
                 this.carriage.trainSpeed = this.trainSpeed;
                 this.carriage.chooChooMotherFucker(baseSpeed, false);
             }
+        }
 
-            if (checkCollision && (this.nextSmoke < GameBoard.gameLoop.gameTimeElapsed)) {
+        private drawParticles() {
+            if (this.nextSmoke < GameBoard.gameLoop.gameTimeElapsed) {
                 var p = new ParticleSmoke();
                 p.x = this.coords.currentX;
                 p.y = this.coords.currentY;
@@ -140,11 +145,11 @@ module trains.play {
         }
 
         public hammerTime(): void {
-            this.isPaused = true;
+            this.setPaused(true);
         }
 
         public wakeMeUp(): void {
-            this.isPaused = false;
+            this.setPaused(false);
         }
 
         magicBullshitCompareTo(pen: number, sword: number): number {
@@ -342,13 +347,20 @@ module trains.play {
         }
 
         private waitForTrafficToClear(coords: TrainCoords) {
-            this.isPaused = true;
+            this.setPaused(true);
             var interval = setInterval(() => {
                 if (!this.collidesWith(coords)) {
                     clearInterval(interval);
-                    this.isPaused = false;
+                    this.setPaused(false);
                 }
             }, 500);
+        }
+
+        private setPaused(paused: boolean): void {
+            this.isPaused = paused;
+            if (this.carriage !== undefined) {
+                this.carriage.setPaused(paused);
+            }
         }
     }
 }
