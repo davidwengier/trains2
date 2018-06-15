@@ -4,10 +4,10 @@
 /// <reference path="play.train.renderer.ts" />
 /// <reference path="util.ts" />
 /// <reference path="event.ts" />
-/// <reference path="play.trainCarriage.ts" />
 
 module trains.play {
 
+    
     export class Train {
         public defaultSpeed = 2;
 
@@ -30,7 +30,10 @@ module trains.play {
 
         public nextSmoke = 0;
 
-        constructor(public id: number, cell: Cell) {
+        public Renderer:TrainRenderer;
+
+        constructor(public id: number, cell: Cell, renderer:TrainRenderer) {
+            this.Renderer = renderer;
             this.setTrainSpeed(this.defaultSpeed);
             if (cell !== undefined) {
                 this.coords = {
@@ -43,7 +46,7 @@ module trains.play {
                 if (Math.floor(Math.random() * 10) === 0) {
                     this.trainColourIndex = -1;
                 } else {
-                    this.trainColourIndex = trains.play.TrainRenderer.GetRandomShaftColour();
+                    this.trainColourIndex = this.Renderer.GetRandomShaftColour();
                 }
 
                 this.name = trains.util.getRandomName();
@@ -60,7 +63,7 @@ module trains.play {
             if (this.carriage !== undefined) {
                 this.carriage.spawnCarriage(count);
             } else {
-                this.carriage = new TrainCarriage(-1, undefined);
+                this.carriage = new TrainCarriage(-1, undefined, this.Renderer);
                 this.carriage.coords = {
                     currentX: this.coords.currentX,
                     currentY: this.coords.currentY,
@@ -281,7 +284,7 @@ module trains.play {
                 context.translate(play.gridSize / 2, play.gridSize / 2);
             }
 
-            trains.play.TrainRenderer.DrawChoochoo(context, this.trainColourIndex);
+            this.Renderer.DrawChoochoo(context, this.trainColourIndex);
 
             context.restore();
 
@@ -316,7 +319,7 @@ module trains.play {
             context.save();
             context.translate(this.coords.currentX, this.coords.currentY);
             context.rotate((angle * -1) + ((this.imageReverse < 0) ? Math.PI : 0));
-            trains.play.TrainRenderer.DrawChoochooLights(context);
+            this.Renderer.DrawChoochooLights(context);
             context.restore();
         }
 
@@ -381,6 +384,41 @@ module trains.play {
             if (this.carriage !== undefined) {
                 this.carriage.setPaused(paused);
             }
+        }
+    }
+    export class TrainCarriage extends Train {
+
+        constructor(public id: number, cell: Cell, renderer:TrainRenderer) {
+            super(id, cell, renderer);
+        }
+
+        public draw(context: CanvasRenderingContext2D, translate: boolean = true): void {
+            var x = this.coords.currentX;
+            var y = this.coords.currentY;
+            var angle = Math.atan2(this.coords.previousX - x, this.coords.previousY - y);
+
+            context.save();
+
+            if (translate) {
+                context.translate(x, y);
+                context.rotate((angle * -1) + ((this.imageReverse < 0) ? Math.PI : 0));
+            }
+            else {
+                context.translate(play.gridSize / 2, play.gridSize / 2);
+            }
+
+            this.Renderer.DrawCarriage(context, this.trainColourIndex);
+
+            context.restore();
+
+            if ((this.carriage !== undefined) && translate) {
+                this.carriage.draw(context, translate);
+                this.drawLink(context);
+            }
+        }
+
+        public drawLighting(context: CanvasRenderingContext2D): void {
+            //Do nothing
         }
     }
 }

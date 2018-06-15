@@ -59,6 +59,7 @@ module trains.play {
         public showDiagnostics = false;
 
         public cheat_alwaysNight = false;
+        private trainRenderer:TrainRenderer;
         
         constructor(public playComponents: trains.play.PlayComponents) {
 
@@ -106,6 +107,8 @@ module trains.play {
                     ev.preventDefault();
                     return false; }, false);
             });
+
+            this.trainRenderer = new TrainRenderer(trains.play.gridSize, trains.play.firstTrackPosY, trains.play.secondTrackPosY);
 
             //Hidden canvas buffer
             this.lightingBufferCanvas = <HTMLCanvasElement>document.createElement('canvas');
@@ -257,7 +260,7 @@ module trains.play {
                     var cellID = this.getCellID(column, row);
 
                     if (this.cells[cellID] !== undefined) {
-                        var t = new Train(this.trainIDCounter++, this.cells[cellID]);
+                        var t = new Train(this.trainIDCounter++, this.cells[cellID], this.trainRenderer);
                         //Pre-move train to stop rendering at an odd angle.
                         t.chooChooMotherFucker(0.1);
                         this.trains.push(t);
