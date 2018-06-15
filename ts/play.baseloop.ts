@@ -51,7 +51,7 @@ module trains.play {
                 }
                 this.lastDuration = new Date().getTime() - this.loopStartTime;
                 if (this.lastStartTime !== undefined) {
-                    this.averageLoopsPerSecond = ((this.averageLoopsPerSecond * (this.averageLoopsPerSecondSampleSize - 1)) + ( ((this.loopStartTime - this.lastStartTime)))) / this.averageLoopsPerSecondSampleSize;
+                    this.averageLoopsPerSecond = ((this.averageLoopsPerSecond * (this.averageLoopsPerSecondSampleSize - 1)) + (this.loopStartTime - this.lastStartTime)) / this.averageLoopsPerSecondSampleSize;
                 }
                 this.lastStartTime = this.loopStartTime;
             }
