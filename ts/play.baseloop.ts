@@ -12,7 +12,7 @@ module trains.play {
         lastStartTime = 0;
         loopStartTime;
         lastLoopEndTime;
-        averageLoopsPerSecond = 0;
+        averageLoopsPerSecond = 1;
         averageLoopsPerSecondSampleSize = 5;
         private timeoutId;
         //TODO: implement strictTiming
@@ -51,7 +51,7 @@ module trains.play {
                 }
                 this.lastDuration = new Date().getTime() - this.loopStartTime;
                 if (this.lastStartTime !== undefined) {
-                    this.averageLoopsPerSecond = ((this.averageLoopsPerSecond * (this.averageLoopsPerSecondSampleSize - 1)) + (1 / ((this.loopStartTime - this.lastStartTime) / 1000))) / this.averageLoopsPerSecondSampleSize;
+                    this.averageLoopsPerSecond = ((this.averageLoopsPerSecond * (this.averageLoopsPerSecondSampleSize - 1)) + ( ((this.loopStartTime - this.lastStartTime)))) / this.averageLoopsPerSecondSampleSize;
                 }
                 this.lastStartTime = this.loopStartTime;
             }
