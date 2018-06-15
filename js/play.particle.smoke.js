@@ -17,23 +17,9 @@ var trains;
         var ParticleSmoke = /** @class */ (function (_super) {
             __extends(ParticleSmoke, _super);
             function ParticleSmoke() {
-                var _this = _super.call(this) || this;
+                var _this = _super.call(this, new play.ParticlePoint(0.5, Math.PI * (1.4 * Math.random()), 0.5, new play.ParticleColor(240, 240, 240, 0.4)), new play.ParticlePoint(1.1 + Math.random(), Math.PI * (1.4 * Math.random()), 0.3, new play.ParticleColor(241, 241, 241, 0))) || this;
                 _this.cloudNumber = (Math.random() * 5) + 4;
                 _this.cloudSeed = Math.random() * 10000;
-                _this.startAlpha = 0.4;
-                _this.endAlpha = 0.0;
-                _this.startColorRed = 240;
-                _this.startColorGreen = 240;
-                _this.startColorBlue = 240;
-                _this.endColorRed = 241;
-                _this.endColorGreen = 241;
-                _this.endColorBlue = 241;
-                _this.startAngle = Math.PI * (1.4 * Math.random());
-                _this.endAngle = Math.PI * (1.4 * Math.random());
-                _this.startScale = 0.5;
-                _this.endScale = 1.1;
-                _this.startVelocity = 0.5;
-                _this.endVelocity = 0.3;
                 return _this;
             }
             ParticleSmoke.prototype.Update = function (lifeSteps) {
@@ -42,8 +28,8 @@ var trains;
             ParticleSmoke.prototype.Draw = function (context) {
                 context.save();
                 context.translate(this.x, this.y);
-                context.rotate(this.angle);
-                context.scale(this.scale, this.scale);
+                context.rotate(this.Angle);
+                context.scale(this.Scale, this.Scale);
                 for (var i = 0; i < (Math.PI * 2); i += ((Math.PI * 2) / this.cloudNumber)) {
                     context.beginPath();
                     context.fillStyle = this.GetFillStyleAlpha();
