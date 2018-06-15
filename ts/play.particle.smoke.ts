@@ -3,31 +3,17 @@
 
 module trains.play {
     export class ParticleSmoke extends ParticleBase {
-        public cloudNumber;
-        public cloudSeed;
+        public cloudNumber = (Math.random() * 5) + 4;
+        public cloudSeed = Math.random() * 10000;
 
         constructor() {
-            super();
-
-            this.cloudNumber = (Math.random() * 5) + 4;
-            this.cloudSeed = Math.random() * 10000;
-
-            this.startAlpha = 0.4;
-            this.endAlpha = 0.0;
-            this.startColorRed = 240;
-            this.startColorGreen = 240;
-            this.startColorBlue = 240;
-            this.endColorRed = 241;
-            this.endColorGreen = 241;
-            this.endColorBlue = 241;
-
-            this.startAngle = Math.PI * (1.4 * Math.random());
-            this.endAngle = Math.PI * (1.4 * Math.random());
-            this.startScale = 0.5;
-            this.endScale = 1.1;
-
-            this.startVelocity = 0.5;
-            this.endVelocity = 0.3;
+            super(new ParticlePoint(
+                0.5, Math.PI * (1.4 * Math.random()), 0.5,
+                new ParticleColor(240, 240, 240, 0.4)
+            ), new ParticlePoint(
+                1.1 + Math.random(), Math.PI * (1.4 * Math.random()), 0.3,
+                new ParticleColor(241, 241, 241, 0)
+            ));
         }
 
         public Update(lifeSteps: number): void {
@@ -37,8 +23,8 @@ module trains.play {
         public Draw(context: CanvasRenderingContext2D): void {
             context.save();
             context.translate(this.x, this.y);
-            context.rotate(this.angle);
-            context.scale(this.scale, this.scale);
+            context.rotate(this.Angle);
+            context.scale(this.Scale, this.Scale);
             for (var i = 0; i < (Math.PI * 2); i += ((Math.PI * 2) / this.cloudNumber)) {
                 context.beginPath();
                 context.fillStyle = this.GetFillStyleAlpha();
