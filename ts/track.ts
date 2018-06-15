@@ -1,6 +1,6 @@
 /// <reference path="play.board.ts" />
 /// <reference path="play.cell.ts" />
-/// <reference path="play.spritecollection.track.ts" />
+/// <reference path="sprite/TrackSpriteCollection.ts" />
 
 module trains.play {
 

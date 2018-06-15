@@ -1,10 +1,8 @@
-/// <reference path="play.sprite.track.ts" />
+/// <reference path="BaseTrackSprite.ts" />
 
 module trains.play {
-    export class StraightTrackSprite extends TrackSprite
-    {
-        constructor(cellSize:number, trackWidth:number)
-        {
+    export class StraightTrackSprite extends BaseTrackSprite {
+        constructor(cellSize: number, trackWidth: number) {
             super(cellSize);
 
             var numPlanks = 3;
@@ -31,13 +29,13 @@ module trains.play {
                 */
             }
             this.context.stroke();
-            
+
             // draw the white part of the track
             var endWidth = endX - startX;
             this.context.beginPath();
             this.context.clearRect(startX, firstTrackPosY, endWidth, trackWidth);
             this.context.clearRect(startX, secondTrackPosY - trackWidth, endWidth, trackWidth);
-            
+
             // draw the outline on the track
             this.context.lineWidth = 1;
             this.context.strokeStyle = this.trackColour;

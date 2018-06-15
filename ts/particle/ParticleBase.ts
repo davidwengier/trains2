@@ -1,6 +1,5 @@
-/// <reference path="play.board.ts" />
-/// <reference path="play.particle.point.ts" />
-/// <reference path="play.particle.color.ts" />
+/// <reference path="ParticlePoint.ts" />
+/// <reference path="ParticleColor.ts" />
 
 module trains.play {
     export class ParticleBase extends ParticlePoint {
@@ -14,7 +13,7 @@ module trains.play {
         public readonly EndPoint: ParticlePoint;
 
         constructor(startPoint: ParticlePoint, endPoint: ParticlePoint) {
-            super(1,0,0,new ParticleColor(0,0,0,1));
+            super(1, 0, 0, new ParticleColor(0, 0, 0, 1));
             this.life = 0;
             this.StartPoint = startPoint;
             this.EndPoint = endPoint;
