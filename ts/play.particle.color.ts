@@ -1,3 +1,5 @@
+/// <reference path="play.particle.helper.ts" />
+
 module trains.play {
     export class ParticleColor
     {

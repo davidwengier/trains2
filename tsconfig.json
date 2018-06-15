@@ -1,8 +1,14 @@
 {
     "compilerOptions": {
         "target": "es5",
-        "module": "commonjs",
+        "module": "amd",
         "sourceMap": true,
-        "outDir": "js"
-    }
+        "removeComments": true,
+        "preserveConstEnums": true,
+        "outFile": "js/train.js",
+        
+    },
+    "include": [
+        "ts/play.ts"
+      ]
 }
