@@ -62,9 +62,10 @@ module trains.play.CellRenderer {
     export function drawCurvedTrack(context: CanvasRenderingContext2D, drawPlanks: boolean): void {
 
         if (drawPlanks) {
-            drawCurvedPlank(context, 20 * Math.PI / 180);
-            drawCurvedPlank(context, 45 * Math.PI / 180);
-            drawCurvedPlank(context, 70 * Math.PI / 180);
+            drawCurvedPlank(context, 10 * Math.PI / 180);
+            drawCurvedPlank(context, 35 * Math.PI / 180);
+            drawCurvedPlank(context, 55 * Math.PI / 180);
+            drawCurvedPlank(context, 80 * Math.PI / 180);
         }
         
         context.lineWidth = 1;
