@@ -1,14 +1,30 @@
 /// <reference path="play.board.ts" />
-/// <reference path="play.cell.renderer.ts" />
 /// <reference path="play.cell.ts" />
+/// <reference path="play.spritecollection.track.ts" />
 
 module trains.play {
 
     export class Track extends Cell {
-        draw(context: CanvasRenderingContext2D): void {
+
+        private SpriteCollection:TrackSpriteCollection;
+        constructor(id: string, column: number, row: number, cellSize:number, spriteCollection:TrackSpriteCollection)
+        {
+            super(id, column, row, cellSize);
+            this.SpriteCollection = spriteCollection;
+        }
+
+        public drawStraightTrack(context: CanvasRenderingContext2D, cutOffTop: boolean, cutOffBottom: boolean): void {
+            this.SpriteCollection.StraightTrackSprite.Draw(context, 0, 0);
+        }
+
+        private drawCurvedTrack(context: CanvasRenderingContext2D, drawPlanks: boolean): void {
+            (drawPlanks?this.SpriteCollection.CurvedTrackSprite:this.SpriteCollection.CurvedTrackNoPlanksSprite).Draw(context, 0, 0);
+        }
+
+        public draw(context: CanvasRenderingContext2D): void {
             context.save();
             context.translate(this.x + 0.5, this.y + 0.5);
-            trains.play.CellRenderer.clearCell(context);
+            this.clear(context);
 
             if (GameBoard.showDiagnostics) {
                 if (GameBoard.trains.some(t => t.isTrainHere(this.column, this.row, true))) {
@@ -23,14 +39,14 @@ module trains.play {
             switch (this.direction) {
                 case trains.play.Direction.Horizontal: {
                     var neighbours = trains.play.GameBoard.getNeighbouringCells(this.column, this.row);
-                    trains.play.CellRenderer.drawStraightTrack(context, neighbours.left === undefined, neighbours.right === undefined);
+                    this.drawStraightTrack(context, neighbours.left === undefined, neighbours.right === undefined);
                     break;
                 }
                 case trains.play.Direction.Vertical: {
                     var neighbours = trains.play.GameBoard.getNeighbouringCells(this.column, this.row);
                     context.translate(trains.play.gridSize, 0);
                     context.rotate(Math.PI / 2);
-                    trains.play.CellRenderer.drawStraightTrack(context, neighbours.up === undefined, neighbours.down === undefined);
+                    this.drawStraightTrack(context, neighbours.up === undefined, neighbours.down === undefined);
                     break;
                 }
                 case trains.play.Direction.LeftUp: {
@@ -50,10 +66,10 @@ module trains.play {
                     break;
                 }
                 case trains.play.Direction.Cross: {
-                    trains.play.CellRenderer.drawStraightTrack(context, false, false);
+                    this.drawStraightTrack(context, false, false);
                     context.translate(trains.play.gridSize, 0);
                     context.rotate(Math.PI / 2);
-                    trains.play.CellRenderer.drawStraightTrack(context, false, false);
+                    this.drawStraightTrack(context, false, false);
                     break;
                 }
                 case trains.play.Direction.LeftUpLeftDown: {
@@ -95,23 +111,23 @@ module trains.play {
         rightDown(context: CanvasRenderingContext2D, drawPlanks: boolean): void{
             context.translate(trains.play.gridSize, trains.play.gridSize);
             context.rotate(Math.PI);
-            trains.play.CellRenderer.drawCurvedTrack(context, drawPlanks);
+            this.drawCurvedTrack(context, drawPlanks);
         }
         
         rightUp(context: CanvasRenderingContext2D, drawPlanks: boolean): void{
             context.translate(trains.play.gridSize, 0);
             context.rotate(Math.PI / 2);
-            trains.play.CellRenderer.drawCurvedTrack(context, drawPlanks);
+            this.drawCurvedTrack(context, drawPlanks);
         }
         
         leftUp(context: CanvasRenderingContext2D, drawPlanks: boolean): void{
-            trains.play.CellRenderer.drawCurvedTrack(context, drawPlanks);
+            this.drawCurvedTrack(context, drawPlanks);
         }
         
         leftDown(context: CanvasRenderingContext2D, drawPlanks: boolean): void{
             context.translate(0, trains.play.gridSize);
             context.rotate(Math.PI * 1.5);
-            trains.play.CellRenderer.drawCurvedTrack(context, drawPlanks);
+            this.drawCurvedTrack(context, drawPlanks);
         }
         
 
