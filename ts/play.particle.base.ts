@@ -1,4 +1,6 @@
 /// <reference path="play.board.ts" />
+/// <reference path="play.particle.point.ts" />
+/// <reference path="play.particle.color.ts" />
 
 module trains.play {
     export class ParticleBase extends ParticlePoint {

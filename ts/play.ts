@@ -2,6 +2,7 @@
 /// <reference path="play.board.ts" />
 /// <reference path="util.ts" />
 /// <reference path="event.ts" />
+/// <reference path="logo.ts" />
 
 module trains.play {
 

@@ -1,159 +1,199 @@
 /// <reference path="play.board.ts" />
 
-module trains.play.TrainRenderer {
+module trains.play {
 	
+	export class TrainRenderer { 
+
 	// dark then light
-	export var trainColours: Array<Array<string>> = [
+	public readonly trainColours: Array<Array<string>> = [
 		["#7A040B", "#DD2C3E"],			// red
 		["#4272DC", "#759cef"],			// blue
 		["#2e9b3d", "#66d174"],			// green
 		["#44096d", "#8644b5"],			// purple
 		["#8644b5", "#f4ef53"]			// yellow
 	];
+	
+	private baseColour:string;
 
+	private halfGridSize:number;
 
-	var halfGridSize = trains.play.gridSize / 2;
+	private trainWidth:number;
+	private trainLength:number;
 
-	var trainWidth = secondTrackPosY - firstTrackPosY;
-	var trainLength = trains.play.gridSize;
+	private leftX:number;
+	private rightX:number;
 
-	var leftX = firstTrackPosY * -1;
-	var rightX = leftX + trainWidth;
+	private frontY:number;
+	private backY:number;
 
-	var frontY = halfGridSize * -1;
-	var backY = halfGridSize;
+	private roofPoke:number;
+	private roofWidth:number;
+	private roofLength:number;
+	private roofX:number;
+	private roofY:number;
 
-	// DRAW ASSUMING TRAIN FACING UP
-	var baseColour = "#111111";
+	private shaftPadding:number;
+	private shaftWidth:number;
+	private shaftLength:number;
+	private shaftX:number;
+	private shaftY:number;
 
-	var roofPoke = 2;
-	var roofWidth = trainWidth + roofPoke * 2;
-	var roofLength = 12;
-	var roofX = leftX - roofPoke;
-	var roofY = backY - roofLength;
+	private bumperPoke:number;
+	private bumperWidth:number;
+	private bumperLength:number;
+	private bumperOffset:number;
 
-	var shaftPadding = 4;
-	var shaftWidth = trainWidth - shaftPadding * 2;
-	var shaftLength = trainLength - shaftPadding;
-	var shaftX = leftX + shaftPadding;
-	var shaftY = frontY + shaftPadding;
+    private lightAngleInDegrees:number;
+    private lightDistance:number;
+	private lightFalloffDistance:number;
+	
 
-	var bumperPoke = 2;
-	var bumperWidth = 1;
-	var bumperLength = 3;
-	var bumperOffset = 3;
+	constructor(gridSize:number, firstTackPosY:number, secondTrackPosY:number)
+	{
+		// DRAW ASSUMING TRAIN FACING UP
+		this.baseColour = "#111111";
 
-    var lightAngleInDegrees = 60;
-    var lightDistance = 80;
-    var lightFalloffDistance = 30;
-
-	export function GetRandomShaftColour(): number {
-		return Math.floor(Math.random() * trains.play.TrainRenderer.trainColours.length);
+		this.halfGridSize = gridSize / 2;
+	
+		this.trainWidth = secondTrackPosY - firstTackPosY;
+		this.trainLength = gridSize;
+	
+		this.leftX = firstTackPosY * -1;
+		this.rightX = this.leftX + this.trainWidth;
+	
+		this.frontY = this.halfGridSize * -1;
+		this.backY = this.halfGridSize;
+	
+		this.roofPoke = 2;
+		this.roofWidth = this.trainWidth + this.roofPoke * 2;
+		this.roofLength = 12;
+		this.roofX = this.leftX - this.roofPoke;
+		this.roofY = this.backY - this.roofLength;
+	
+		this.shaftPadding = 4;
+		this.shaftWidth = this.trainWidth - this.shaftPadding * 2;
+		this.shaftLength = this.trainLength - this.shaftPadding;
+		this.shaftX = this.leftX + this.shaftPadding;
+		this.shaftY = this.frontY + this.shaftPadding;
+	
+		this.bumperPoke = 2;
+		this.bumperWidth = 1;
+		this.bumperLength = 3;
+		this.bumperOffset = 3;
+	
+		this.lightAngleInDegrees = 60;
+		this.lightDistance = 80;
+		this.lightFalloffDistance = 30;
 	}
 
-    export function DrawChoochooLights(context: CanvasRenderingContext2D): void {
-        var xOffset = lightDistance * Math.tan(lightAngleInDegrees * (180 / Math.PI)) / 2;
+	public GetRandomShaftColour(): number {
+		return Math.floor(Math.random() * this.trainColours.length);
+	}
+
+    public DrawChoochooLights(context: CanvasRenderingContext2D): void {
+        var xOffset = this.lightDistance * Math.tan(this.lightAngleInDegrees * (180 / Math.PI)) / 2;
 
         context.beginPath();
-        var leftLightGradient = context.createRadialGradient(leftX, frontY - bumperPoke, lightFalloffDistance, leftX, frontY - bumperPoke, lightDistance);
+        var leftLightGradient = context.createRadialGradient(this.leftX, this.frontY - this.bumperPoke, this.lightFalloffDistance, this.leftX, this.frontY - this.bumperPoke, this.lightDistance);
         leftLightGradient.addColorStop(0, "#BBBBBB");
         leftLightGradient.addColorStop(1, 'rgba(187,187,187,0)');
         context.fillStyle = leftLightGradient;
-        context.moveTo(0, frontY - bumperPoke);
-        context.lineTo(0 - xOffset, (frontY - bumperPoke) - lightDistance);
+        context.moveTo(0, this.frontY - this.bumperPoke);
+        context.lineTo(0 - xOffset, (this.frontY - this.bumperPoke) - this.lightDistance);
         //Need to implement circle tip here instead of flat
-        context.lineTo(0 + xOffset, (frontY - bumperPoke) - lightDistance);
-        context.lineTo(0, frontY - bumperPoke);
+        context.lineTo(0 + xOffset, (this.frontY - this.bumperPoke) - this.lightDistance);
+        context.lineTo(0, this.frontY - this.bumperPoke);
         context.fill();
     }
 
-	export function DrawChoochoo(context: CanvasRenderingContext2D, shaftColourIndex: number): void {
+	public DrawChoochoo(context: CanvasRenderingContext2D, shaftColourIndex: number): void {
 
-		var shaftColour = trainColours[shaftColourIndex];
+		var shaftColour = this.trainColours[shaftColourIndex];
 		if (shaftColourIndex === -1) {
-			shaftColour = trainColours[GetRandomShaftColour()];
+			shaftColour = this.trainColours[this.GetRandomShaftColour()];
 		}
 
-		context.fillStyle = baseColour;
-		context.fillRect(leftX, frontY, trainWidth, trainLength);
+		context.fillStyle = this.baseColour;
+		context.fillRect(this.leftX, this.frontY, this.trainWidth, this.trainLength);
 
-		context.fillStyle = GetShaftFillStyle(context, shaftColour[0], shaftColour[1]);
-		context.fillRect(shaftX, shaftY, shaftWidth, shaftLength);
+		context.fillStyle = this.GetShaftFillStyle(context, shaftColour[0], shaftColour[1]);
+		context.fillRect(this.shaftX, this.shaftY, this.shaftWidth, this.shaftLength);
 
-		context.fillStyle = GetRoofFillStyle(context, baseColour, "#5d5d5d");
-		context.fillRect(roofX, roofY, roofWidth, roofLength);
-		context.strokeRect(roofX, roofY, roofWidth, roofLength);
+		context.fillStyle = this.GetRoofFillStyle(context, this.baseColour, "#5d5d5d");
+		context.fillRect(this.roofX, this.roofY, this.roofWidth, this.roofLength);
+		context.strokeRect(this.roofX, this.roofY, this.roofWidth, this.roofLength);
 
-		context.fillStyle = baseColour;
+		context.fillStyle = this.baseColour;
 		context.beginPath();
-		context.arc(shaftX + (shaftWidth / 2), shaftY + 6, 2, 0, 2 * Math.PI);
+		context.arc(this.shaftX + (this.shaftWidth / 2), this.shaftY + 6, 2, 0, 2 * Math.PI);
 		context.stroke();
 		context.closePath;
 		context.fill();
 
-		DrawBumpers(context, true);
-		DrawBumpers(context, false);
+		this.DrawBumpers(context, true);
+		this.DrawBumpers(context, false);
 	}
 
-    export function DrawCarriage(context: CanvasRenderingContext2D, shaftColourIndex: number): void {
+    public DrawCarriage(context: CanvasRenderingContext2D, shaftColourIndex: number): void {
 
-        var shaftColour = trainColours[shaftColourIndex];
+        var shaftColour = this.trainColours[shaftColourIndex];
         if (shaftColourIndex === -1) {
-            shaftColour = trainColours[GetRandomShaftColour()];
+            shaftColour = this.trainColours[this.GetRandomShaftColour()];
         }
-        context.fillStyle = baseColour;
-        context.fillRect(leftX, frontY, trainWidth, trainLength);
+        context.fillStyle = this.baseColour;
+        context.fillRect(this.leftX, this.frontY, this.trainWidth, this.trainLength);
 
-        context.fillStyle = GetShaftFillStyle(context, shaftColour[0], shaftColour[1]);
-        context.fillRect(shaftX, shaftY, shaftWidth, shaftLength - shaftPadding);
+        context.fillStyle = this.GetShaftFillStyle(context, shaftColour[0], shaftColour[1]);
+        context.fillRect(this.shaftX, this.shaftY, this.shaftWidth, this.shaftLength - this.shaftPadding);
     }
 
-	function GetRoofFillStyle(context: CanvasRenderingContext2D, firstColour: string, secondColour: string): CanvasGradient {
-		var x2 = roofX + roofWidth;
+	public GetRoofFillStyle(context: CanvasRenderingContext2D, firstColour: string, secondColour: string): CanvasGradient {
+		var x2 = this.roofX + this.roofWidth;
 
-		var grd = context.createLinearGradient(roofX, roofY, x2, roofY);
+		var grd = context.createLinearGradient(this.roofX, this.roofY, x2, this.roofY);
 		grd.addColorStop(0, firstColour);
 		grd.addColorStop(0.5, secondColour);
 		grd.addColorStop(1, firstColour);
 		return grd;
 	}
 
-	function GetShaftFillStyle(context: CanvasRenderingContext2D, firstColour: string, secondColour: string): CanvasGradient {
-		var x2 = shaftX + shaftWidth;
+	public GetShaftFillStyle(context: CanvasRenderingContext2D, firstColour: string, secondColour: string): CanvasGradient {
+		var x2 = this.shaftX + this.shaftWidth;
 
-		var grd = context.createLinearGradient(shaftX, shaftY, x2, shaftY);
+		var grd = context.createLinearGradient(this.shaftX, this.shaftY, x2, this.shaftY);
 		grd.addColorStop(0, firstColour);
 		grd.addColorStop(0.5, secondColour)
 		grd.addColorStop(1, firstColour);
 		return grd;
 	}
 
-	function DrawBumpers(context: CanvasRenderingContext2D, upFront: boolean): void {
+	public DrawBumpers(context: CanvasRenderingContext2D, upFront: boolean): void {
 
 		var y: number;
 		var bumperY: number;
 		if (upFront) {
-			y = frontY;
-			bumperY = frontY - bumperPoke;
+			y = this.frontY;
+			bumperY = this.frontY - this.bumperPoke;
 		} else {
-			y = backY;
-			bumperY = backY + bumperPoke
+			y = this.backY;
+			bumperY = this.backY + this.bumperPoke
 		}
 
 		context.beginPath();
-		context.lineWidth = bumperWidth;
-		context.strokeStyle = baseColour;
+		context.lineWidth = this.bumperWidth;
+		context.strokeStyle = this.baseColour;
 
-		context.moveTo(leftX + bumperOffset, bumperY);
-		context.lineTo(leftX + bumperOffset, y);
-		context.moveTo(leftX + bumperOffset - (bumperLength / 2), bumperY);
-		context.lineTo(leftX + bumperOffset + (bumperLength / 2), bumperY);
+		context.moveTo(this.leftX + this.bumperOffset, bumperY);
+		context.lineTo(this.leftX + this.bumperOffset, y);
+		context.moveTo(this.leftX + this.bumperOffset - (this.bumperLength / 2), bumperY);
+		context.lineTo(this.leftX + this.bumperOffset + (this.bumperLength / 2), bumperY);
 
-		context.moveTo(rightX - bumperOffset, bumperY);
-		context.lineTo(rightX - bumperOffset, y);
-		context.moveTo(rightX - bumperOffset - (bumperLength / 2), bumperY);
-		context.lineTo(rightX - bumperOffset + (bumperLength / 2), bumperY);
+		context.moveTo(this.rightX - this.bumperOffset, bumperY);
+		context.lineTo(this.rightX - this.bumperOffset, y);
+		context.moveTo(this.rightX - this.bumperOffset - (this.bumperLength / 2), bumperY);
+		context.lineTo(this.rightX - this.bumperOffset + (this.bumperLength / 2), bumperY);
 
 		context.stroke();
 	}
+}
 }
