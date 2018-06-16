@@ -8,7 +8,8 @@
 /// <reference path="play.loop.game.ts" />
 /// <reference path="play.loop.render.ts" />
 /// <reference path="audio.ts" />
-/// <reference path="play.particle.smoke.ts" />
+/// <reference path="particle/types/SmokeParticle.ts" />
+/// <reference path="sprite/TrackSpriteCollection.ts" />
 
 module trains.play {
 
@@ -49,7 +50,7 @@ module trains.play {
         
         private trainIDCounter = 0;
         public trains = new Array<trains.play.Train>();
-        public smokeParticleSystem = new Array<ParticleSmoke>();
+        public smokeParticleSystem = new Array<SmokeParticle>();
         public selectedTrain: trains.play.Train;
         private gameRunningState = true;
         private player: trains.audio.Player;
@@ -60,6 +61,7 @@ module trains.play {
 
         public cheat_alwaysNight = false;
         private trainRenderer:TrainRenderer;
+        private trackSpriteCollection:TrackSpriteCollection;
         
         constructor(public playComponents: trains.play.PlayComponents) {
 
@@ -109,6 +111,7 @@ module trains.play {
             });
 
             this.trainRenderer = new TrainRenderer(trains.play.gridSize, trains.play.firstTrackPosY, trains.play.secondTrackPosY);
+            this.trackSpriteCollection = new TrackSpriteCollection(trains.play.gridSize)
 
             //Hidden canvas buffer
             this.lightingBufferCanvas = <HTMLCanvasElement>document.createElement('canvas');
@@ -137,7 +140,7 @@ module trains.play {
                 for (var id in savedCells) {
                     if (savedCells.hasOwnProperty(id)) {
                         var theCell = <Cell>savedCells[id];
-                        var newCell = new trains.play.Track(theCell.id, theCell.column, theCell.row);
+                        var newCell = new trains.play.Track(theCell.id, theCell.column, theCell.row, trains.play.gridSize, this.trackSpriteCollection);
                         newCell.direction = theCell.direction;
                         newCell.happy = theCell.happy;
                         newCell.switchState = theCell.switchState;
@@ -303,7 +306,7 @@ module trains.play {
 
             if (this.cells[cellID] === undefined) {
                 this.player.playSound(trains.audio.Sound.click);
-                var newCell = new trains.play.Track(cellID, column, row);
+                var newCell = new trains.play.Track(cellID, column, row, trains.play.gridSize, this.trackSpriteCollection);
 
                 this.cells[newCell.id] = newCell;
 

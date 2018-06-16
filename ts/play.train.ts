@@ -4,6 +4,7 @@
 /// <reference path="play.train.renderer.ts" />
 /// <reference path="util.ts" />
 /// <reference path="event.ts" />
+/// <reference path="particle/types/SmokeParticle.ts" />
 
 module trains.play {
 
@@ -122,7 +123,7 @@ module trains.play {
 
         private drawParticles() {
             if (this.nextSmoke < GameBoard.gameLoop.gameTimeElapsed) {
-                var p = new ParticleSmoke();
+                var p = new SmokeParticle();
                 p.x = this.coords.currentX;
                 p.y = this.coords.currentY;
                 GameBoard.smokeParticleSystem.push(p);

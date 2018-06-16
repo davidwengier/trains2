@@ -1,11 +1,9 @@
-/// <reference path="play.particle.color.ts" />
-/// <reference path="play.particle.helper.ts" />
+/// <reference path="ParticleColor.ts" />
+/// <reference path="ParticleHelper.ts" />
 
 module trains.play {
-    export class ParticlePoint
-    {
-        constructor(scale: number, angle: number, velocity: number, color: ParticleColor)
-        {
+    export class ParticlePoint {
+        constructor(scale: number, angle: number, velocity: number, color: ParticleColor) {
             this.Scale = scale;
             this.Angle = angle;
             this.Velocity = velocity;
@@ -16,8 +14,7 @@ module trains.play {
         public Velocity: number;
         public Color: ParticleColor;
 
-        public MapByFactor(factor: number, min:ParticlePoint, max:ParticlePoint)
-        {
+        public MapByFactor(factor: number, min: ParticlePoint, max: ParticlePoint) {
             this.Scale = ParticleHelper.MapByFactor(factor, min.Scale, max.Scale);
             this.Angle = ParticleHelper.MapByFactor(factor, min.Angle, max.Angle);
             this.Velocity = ParticleHelper.MapByFactor(factor, min.Velocity, max.Velocity);
