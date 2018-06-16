@@ -1,10 +1,8 @@
-/// <reference path="play.particle.helper.ts" />
+/// <reference path="ParticleHelper.ts" />
 
 module trains.play {
-    export class ParticleColor
-    {
-        constructor(red: number, green: number, blue: number, alpha: number)
-        {
+    export class ParticleColor {
+        constructor(red: number, green: number, blue: number, alpha: number) {
             this.Red = red;
             this.Green = green;
             this.Blue = blue;
@@ -17,8 +15,7 @@ module trains.play {
         public ToRGBA(): string {
             return 'rgba(' + Math.round(this.Red) + ',' + Math.round(this.Green) + ',' + Math.round(this.Blue) + ',' + this.Alpha.toFixed(3) + ')';
         }
-        public MapByFactor(factor: number, min:ParticleColor, max:ParticleColor)
-        {
+        public MapByFactor(factor: number, min: ParticleColor, max: ParticleColor) {
             this.Red = ParticleHelper.MapByFactor(factor, min.Red, max.Red);
             this.Green = ParticleHelper.MapByFactor(factor, min.Green, max.Green);
             this.Blue = ParticleHelper.MapByFactor(factor, min.Blue, max.Blue);

@@ -1,8 +1,7 @@
-/// <reference path="play.board.ts" />
-/// <reference path="play.particle.base.ts" />
+/// <reference path="../ParticleBase.ts" />
 
 module trains.play {
-    export class ParticleSmoke extends ParticleBase {
+    export class SmokeParticle extends ParticleBase {
         public cloudNumber = (Math.random() * 5) + 4;
         public cloudSeed = Math.random() * 10000;
 

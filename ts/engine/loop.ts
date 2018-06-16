@@ -1,4 +1,4 @@
-/// <reference path="play.board.ts" />
+/// <reference path="../play.board.ts" />
 
 module trains.play {
     export class Loop {
@@ -32,8 +32,7 @@ module trains.play {
             if (this.timeoutId === undefined) {
                 try {
                     clearTimeout(this.timeoutId);
-                }
-                finally {
+                } finally {
                     this.timeoutId = undefined;
                 }
             }

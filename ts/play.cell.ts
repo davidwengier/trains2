@@ -1,5 +1,4 @@
 /// <reference path="play.board.ts" />
-/// <reference path="play.cell.renderer.ts" />
 
 module trains.play {
 
@@ -10,16 +9,22 @@ module trains.play {
         public x: number;
         public y: number;
         public direction: trains.play.Direction;
+        private cellSize:number;
 
-        constructor(public id: string, public column: number, public row: number) {
+        constructor(public id: string, public column: number, public row: number, cellSize:number) {
             this.happy = false;
-            this.x = this.column * trains.play.gridSize;
-            this.y = this.row * trains.play.gridSize;
+            this.x = this.column * cellSize;
+            this.y = this.row * cellSize;
+            this.cellSize = cellSize;
             this.direction = trains.play.Direction.None;
         }
 
         draw(context: CanvasRenderingContext2D): void {
             throw new Error("This method is abstract.. no really.. come on.. just pretend! It will be fun I promise.");
+        }
+
+        clear(context: CanvasRenderingContext2D): void {
+            context.clearRect(0, 0, this.cellSize, this.cellSize);
         }
 
         turnAroundBrightEyes(): void {

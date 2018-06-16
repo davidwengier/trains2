@@ -1,7 +1,6 @@
 /// <reference path="play.board.ts" />
-/// <reference path="play.baseloop.ts" />
+/// <reference path="engine/loop.ts" />
 /// <reference path="play.train.ts" />
-/// <reference path="play.particle.smoke.ts" />
 
 module trains.play {
     export class GameLoop extends Loop {
