@@ -104,7 +104,7 @@ module trains.play {
                 var cell = GameBoard.getCell(column, row);
                 if (cell !== undefined) {
                     var result = this.getNewCoordsForTrain(cell, this.coords, speed);
-                    if (checkCollision && this.collidesWith(result.coords)) {
+                    if (checkCollision && this.willNotHaveAFunTimeAt(result.coords)) {
                         this.waitForTrafficToClear(result.coords);
                         return;
                     }
@@ -357,10 +357,11 @@ module trains.play {
             context.restore();
         }
 
-        private collidesWith(coords: TrainCoords): boolean {
+        private willNotHaveAFunTimeAt(coords: TrainCoords): boolean {
             var frontCoords = this.getFrontOfTrain(10);
             var myColumn = GameBoard.getGridCoord(frontCoords.currentX);
             var myRow = GameBoard.getGridCoord(frontCoords.currentY);
+            if (GameBoard.getCell(myColumn, myRow) === undefined) return true;
             return GameBoard.trains.some(t => {
                 if (t === this) return false;
                 if (t.isTrainHere(myColumn, myRow)) {
@@ -373,7 +374,7 @@ module trains.play {
         private waitForTrafficToClear(coords: TrainCoords) {
             this.setPaused(true);
             var interval = setInterval(() => {
-                if (!this.collidesWith(coords)) {
+                if (!this.willNotHaveAFunTimeAt(coords)) {
                     clearInterval(interval);
                     this.setPaused(false);
                 }
