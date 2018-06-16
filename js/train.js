@@ -799,7 +799,7 @@ var trains;
                     var cell = play.GameBoard.getCell(column, row);
                     if (cell !== undefined) {
                         var result = this.getNewCoordsForTrain(cell, this.coords, speed);
-                        if (checkCollision && this.collidesWith(result.coords)) {
+                        if (checkCollision && this.willNotHaveAFunTimeAt(result.coords)) {
                             this.waitForTrafficToClear(result.coords);
                             return;
                         }
@@ -990,11 +990,13 @@ var trains;
                 context.stroke();
                 context.restore();
             };
-            Train.prototype.collidesWith = function (coords) {
+            Train.prototype.willNotHaveAFunTimeAt = function (coords) {
                 var _this = this;
                 var frontCoords = this.getFrontOfTrain(10);
                 var myColumn = play.GameBoard.getGridCoord(frontCoords.currentX);
                 var myRow = play.GameBoard.getGridCoord(frontCoords.currentY);
+                if (play.GameBoard.getCell(myColumn, myRow) === undefined)
+                    return true;
                 return play.GameBoard.trains.some(function (t) {
                     if (t === _this)
                         return false;
@@ -1008,7 +1010,7 @@ var trains;
                 var _this = this;
                 this.setPaused(true);
                 var interval = setInterval(function () {
-                    if (!_this.collidesWith(coords)) {
+                    if (!_this.willNotHaveAFunTimeAt(coords)) {
                         clearInterval(interval);
                         _this.setPaused(false);
                     }
@@ -1757,7 +1759,7 @@ var trains;
                             var cellID = this.getCellID(column, row);
                             if (this.cells[cellID] !== undefined) {
                                 var t = new play.Train(this.trainIDCounter++, this.cells[cellID], this.trainRenderer);
-                                t.chooChooMotherFucker(0.1);
+                                t.chooChooMotherFucker(0.1, false);
                                 this.trains.push(t);
                                 this.showTrainControls(t);
                             }
