@@ -12,111 +12,22 @@ var trains;
 (function (trains) {
     var play;
     (function (play) {
-        var CellRenderer;
-        (function (CellRenderer) {
-            var plankColour = "#382E1C";
-            var trackColour = "#6E7587";
-            function clearCell(context) {
-                context.clearRect(0, 0, play.gridSize, play.gridSize);
-            }
-            CellRenderer.clearCell = clearCell;
-            function drawStraightTrack(context, cutOffTop, cutOffBottom) {
-                var numPlanks = 3;
-                var startX = 0;
-                var endX = trains.play.gridSize;
-                var thirdGridSize = trains.play.gridSize / 3;
-                context.lineWidth = play.trackWidth;
-                context.strokeStyle = plankColour;
-                context.beginPath();
-                for (var i = 1; i <= numPlanks; i++) {
-                    var xPosition = (thirdGridSize * i) - (thirdGridSize / 2);
-                    var yPosition = play.firstTrackPosY - play.trackWidth;
-                    context.moveTo(xPosition, yPosition);
-                    context.lineTo(xPosition, play.secondTrackPosY + play.trackWidth);
-                    if (cutOffTop && i === 1) {
-                        startX = xPosition + play.trackWidth - 1;
-                    }
-                    else if (cutOffBottom && i === numPlanks) {
-                        endX = xPosition - 1;
-                    }
-                }
-                context.stroke();
-                var endWidth = endX - startX;
-                context.beginPath();
-                context.clearRect(startX, play.firstTrackPosY, endWidth, play.trackWidth);
-                context.clearRect(startX, play.secondTrackPosY - play.trackWidth, endWidth, play.trackWidth);
-                context.lineWidth = 1;
-                context.strokeStyle = trackColour;
-                context.beginPath();
-                context.moveTo(startX, play.firstTrackPosY);
-                context.lineTo(endX, play.firstTrackPosY);
-                context.moveTo(startX, play.firstTrackPosY + play.trackWidth);
-                context.lineTo(endX, play.firstTrackPosY + play.trackWidth);
-                context.moveTo(startX, play.secondTrackPosY - play.trackWidth);
-                context.lineTo(endX, play.secondTrackPosY - play.trackWidth);
-                context.moveTo(startX, play.secondTrackPosY);
-                context.lineTo(endX, play.secondTrackPosY);
-                context.stroke();
-            }
-            CellRenderer.drawStraightTrack = drawStraightTrack;
-            function drawCurvedTrack(context, drawPlanks) {
-                if (drawPlanks) {
-                    drawCurvedPlank(context, 10 * Math.PI / 180);
-                    drawCurvedPlank(context, 35 * Math.PI / 180);
-                    drawCurvedPlank(context, 55 * Math.PI / 180);
-                    drawCurvedPlank(context, 80 * Math.PI / 180);
-                }
-                context.lineWidth = 1;
-                context.strokeStyle = trackColour;
-                var finishAngle = Math.PI / 2;
-                context.beginPath();
-                context.arc(0, 0, play.firstTrackPosY, 0, finishAngle, false);
-                context.stroke();
-                context.beginPath();
-                context.arc(0, 0, play.firstTrackPosY + play.trackWidth, 0, finishAngle, false);
-                context.stroke();
-                context.beginPath();
-                context.arc(0, 0, play.secondTrackPosY - play.trackWidth, 0, finishAngle, false);
-                context.stroke();
-                context.beginPath();
-                context.arc(0, 0, play.secondTrackPosY, 0, finishAngle, false);
-                context.stroke();
-            }
-            CellRenderer.drawCurvedTrack = drawCurvedTrack;
-            function drawCurvedPlank(context, basePos) {
-                var cos = Math.cos(basePos);
-                var sin = Math.sin(basePos);
-                context.lineWidth = play.trackWidth;
-                context.strokeStyle = plankColour;
-                context.beginPath();
-                context.moveTo((play.firstTrackPosY - play.trackWidth) * cos, (play.firstTrackPosY - play.trackWidth) * sin);
-                context.lineTo((play.firstTrackPosY) * cos, (play.firstTrackPosY) * sin);
-                context.moveTo((play.firstTrackPosY + play.trackWidth) * cos, (play.firstTrackPosY + play.trackWidth) * sin);
-                context.lineTo((play.secondTrackPosY - play.trackWidth) * cos, (play.secondTrackPosY - play.trackWidth) * sin);
-                context.moveTo((play.secondTrackPosY) * cos, (play.secondTrackPosY) * sin);
-                context.lineTo((play.secondTrackPosY + play.trackWidth) * cos, (play.secondTrackPosY + play.trackWidth) * sin);
-                context.stroke();
-            }
-            CellRenderer.drawCurvedPlank = drawCurvedPlank;
-        })(CellRenderer = play.CellRenderer || (play.CellRenderer = {}));
-    })(play = trains.play || (trains.play = {}));
-})(trains || (trains = {}));
-var trains;
-(function (trains) {
-    var play;
-    (function (play) {
         var Cell = (function () {
-            function Cell(id, column, row) {
+            function Cell(id, column, row, cellSize) {
                 this.id = id;
                 this.column = column;
                 this.row = row;
                 this.happy = false;
-                this.x = this.column * trains.play.gridSize;
-                this.y = this.row * trains.play.gridSize;
+                this.x = this.column * cellSize;
+                this.y = this.row * cellSize;
+                this.cellSize = cellSize;
                 this.direction = trains.play.Direction.None;
             }
             Cell.prototype.draw = function (context) {
                 throw new Error("This method is abstract.. no really.. come on.. just pretend! It will be fun I promise.");
+            };
+            Cell.prototype.clear = function (context) {
+                context.clearRect(0, 0, this.cellSize, this.cellSize);
             };
             Cell.prototype.turnAroundBrightEyes = function () {
                 throw new Error("abstract");
@@ -677,6 +588,141 @@ var trains;
 (function (trains) {
     var play;
     (function (play) {
+        var ParticleHelper = (function () {
+            function ParticleHelper() {
+            }
+            ParticleHelper.MapByFactor = function (factor, min, max) {
+                return (factor * (max - min)) + min;
+            };
+            return ParticleHelper;
+        }());
+        play.ParticleHelper = ParticleHelper;
+    })(play = trains.play || (trains.play = {}));
+})(trains || (trains = {}));
+var trains;
+(function (trains) {
+    var play;
+    (function (play) {
+        var ParticleColor = (function () {
+            function ParticleColor(red, green, blue, alpha) {
+                this.Red = red;
+                this.Green = green;
+                this.Blue = blue;
+                this.Alpha = alpha;
+            }
+            ParticleColor.prototype.ToRGBA = function () {
+                return 'rgba(' + Math.round(this.Red) + ',' + Math.round(this.Green) + ',' + Math.round(this.Blue) + ',' + this.Alpha.toFixed(3) + ')';
+            };
+            ParticleColor.prototype.MapByFactor = function (factor, min, max) {
+                this.Red = play.ParticleHelper.MapByFactor(factor, min.Red, max.Red);
+                this.Green = play.ParticleHelper.MapByFactor(factor, min.Green, max.Green);
+                this.Blue = play.ParticleHelper.MapByFactor(factor, min.Blue, max.Blue);
+                this.Alpha = play.ParticleHelper.MapByFactor(factor, min.Alpha, max.Alpha);
+            };
+            return ParticleColor;
+        }());
+        play.ParticleColor = ParticleColor;
+    })(play = trains.play || (trains.play = {}));
+})(trains || (trains = {}));
+var trains;
+(function (trains) {
+    var play;
+    (function (play) {
+        var ParticlePoint = (function () {
+            function ParticlePoint(scale, angle, velocity, color) {
+                this.Scale = scale;
+                this.Angle = angle;
+                this.Velocity = velocity;
+                this.Color = color;
+            }
+            ParticlePoint.prototype.MapByFactor = function (factor, min, max) {
+                this.Scale = play.ParticleHelper.MapByFactor(factor, min.Scale, max.Scale);
+                this.Angle = play.ParticleHelper.MapByFactor(factor, min.Angle, max.Angle);
+                this.Velocity = play.ParticleHelper.MapByFactor(factor, min.Velocity, max.Velocity);
+                this.Color.MapByFactor(factor, min.Color, max.Color);
+            };
+            return ParticlePoint;
+        }());
+        play.ParticlePoint = ParticlePoint;
+    })(play = trains.play || (trains.play = {}));
+})(trains || (trains = {}));
+var trains;
+(function (trains) {
+    var play;
+    (function (play) {
+        var ParticleBase = (function (_super) {
+            __extends(ParticleBase, _super);
+            function ParticleBase(startPoint, endPoint) {
+                var _this = _super.call(this, 1, 0, 0, new play.ParticleColor(0, 0, 0, 1)) || this;
+                _this.life = 0;
+                _this.lifetime = 100;
+                _this.x = 0;
+                _this.y = 0;
+                _this.life = 0;
+                _this.StartPoint = startPoint;
+                _this.EndPoint = endPoint;
+                return _this;
+            }
+            ParticleBase.prototype.Update = function (lifeSteps) {
+                if (this.IsDead()) {
+                    return;
+                }
+                this.life = Math.min(this.life + lifeSteps, this.lifetime);
+                this.MapByFactor(this.life / this.lifetime, this.StartPoint, this.EndPoint);
+                this.x += this.Velocity * Math.cos(this.Angle);
+                this.y += this.Velocity * Math.sin(this.Angle);
+            };
+            ParticleBase.prototype.IsDead = function () {
+                return (this.life >= this.lifetime);
+            };
+            ParticleBase.prototype.Draw = function (context) {
+                throw new Error("abstract, not the art kind, but the extends kind");
+            };
+            ParticleBase.prototype.GetFillStyleAlpha = function () {
+                return this.Color.ToRGBA();
+            };
+            return ParticleBase;
+        }(play.ParticlePoint));
+        play.ParticleBase = ParticleBase;
+    })(play = trains.play || (trains.play = {}));
+})(trains || (trains = {}));
+var trains;
+(function (trains) {
+    var play;
+    (function (play) {
+        var SmokeParticle = (function (_super) {
+            __extends(SmokeParticle, _super);
+            function SmokeParticle() {
+                var _this = _super.call(this, new play.ParticlePoint(0.5, Math.PI * (1.4 * Math.random()), 0.5, new play.ParticleColor(240, 240, 240, 0.4)), new play.ParticlePoint(1.1 + Math.random(), Math.PI * (1.4 * Math.random()), 0.3, new play.ParticleColor(241, 241, 241, 0))) || this;
+                _this.cloudNumber = (Math.random() * 5) + 4;
+                _this.cloudSeed = Math.random() * 10000;
+                return _this;
+            }
+            SmokeParticle.prototype.Update = function (lifeSteps) {
+                _super.prototype.Update.call(this, lifeSteps);
+            };
+            SmokeParticle.prototype.Draw = function (context) {
+                context.save();
+                context.translate(this.x, this.y);
+                context.rotate(this.Angle);
+                context.scale(this.Scale, this.Scale);
+                for (var i = 0; i < (Math.PI * 2); i += ((Math.PI * 2) / this.cloudNumber)) {
+                    context.beginPath();
+                    context.fillStyle = this.GetFillStyleAlpha();
+                    context.arc(5 * Math.cos(i), 5 * Math.sin(i), ((i * this.cloudSeed) % 5) + 3, 0, 2 * Math.PI);
+                    context.fill();
+                }
+                context.restore();
+            };
+            return SmokeParticle;
+        }(play.ParticleBase));
+        play.SmokeParticle = SmokeParticle;
+    })(play = trains.play || (trains.play = {}));
+})(trains || (trains = {}));
+var trains;
+(function (trains) {
+    var play;
+    (function (play) {
         var Train = (function () {
             function Train(id, cell, renderer) {
                 this.id = id;
@@ -771,7 +817,7 @@ var trains;
             };
             Train.prototype.drawParticles = function () {
                 if (this.nextSmoke < play.GameBoard.gameLoop.gameTimeElapsed) {
-                    var p = new play.ParticleSmoke();
+                    var p = new play.SmokeParticle();
                     p.x = this.coords.currentX;
                     p.y = this.coords.currentY;
                     play.GameBoard.smokeParticleSystem.push(p);
@@ -1015,16 +1061,179 @@ var trains;
 (function (trains) {
     var play;
     (function (play) {
+        var Sprite = (function () {
+            function Sprite(width, height) {
+                this.restored = false;
+                this.canvas = document.createElement("canvas");
+                this.canvas.width = width;
+                this.canvas.height = height;
+                this.context = this.canvas.getContext("2d");
+                this.context.save();
+                this.context.translate(0.5, 0.5);
+            }
+            Sprite.prototype.Draw = function (context, x, y) {
+                if (!this.restored) {
+                    this.context.restore();
+                    this.restored = true;
+                }
+                context.drawImage(this.canvas, x - 0.5, y - 0.5);
+            };
+            return Sprite;
+        }());
+        play.Sprite = Sprite;
+    })(play = trains.play || (trains.play = {}));
+})(trains || (trains = {}));
+var trains;
+(function (trains) {
+    var play;
+    (function (play) {
+        var BaseTrackSprite = (function (_super) {
+            __extends(BaseTrackSprite, _super);
+            function BaseTrackSprite(cellSize) {
+                var _this = _super.call(this, cellSize, cellSize) || this;
+                _this.plankColour = "#382E1C";
+                _this.trackColour = "#6E7587";
+                return _this;
+            }
+            return BaseTrackSprite;
+        }(play.Sprite));
+        play.BaseTrackSprite = BaseTrackSprite;
+    })(play = trains.play || (trains.play = {}));
+})(trains || (trains = {}));
+var trains;
+(function (trains) {
+    var play;
+    (function (play) {
+        var CurvedTrackSprite = (function (_super) {
+            __extends(CurvedTrackSprite, _super);
+            function CurvedTrackSprite(cellSize, drawPlanks, trackWidth) {
+                var _this = _super.call(this, cellSize) || this;
+                _this.drawCurvedTrack(_this.context, drawPlanks, trackWidth);
+                return _this;
+            }
+            CurvedTrackSprite.prototype.drawCurvedTrack = function (context, drawPlanks, trackWidth) {
+                if (drawPlanks) {
+                    this.drawCurvedPlank(context, 20 * Math.PI / 180, trackWidth);
+                    this.drawCurvedPlank(context, 45 * Math.PI / 180, trackWidth);
+                    this.drawCurvedPlank(context, 70 * Math.PI / 180, trackWidth);
+                }
+                context.lineWidth = 1;
+                context.strokeStyle = this.trackColour;
+                var finishAngle = Math.PI / 2;
+                context.beginPath();
+                context.arc(0, 0, play.firstTrackPosY, 0, finishAngle, false);
+                context.stroke();
+                context.beginPath();
+                context.arc(0, 0, play.firstTrackPosY + trackWidth, 0, finishAngle, false);
+                context.stroke();
+                context.beginPath();
+                context.arc(0, 0, play.secondTrackPosY - trackWidth, 0, finishAngle, false);
+                context.stroke();
+                context.beginPath();
+                context.arc(0, 0, play.secondTrackPosY, 0, finishAngle, false);
+                context.stroke();
+            };
+            CurvedTrackSprite.prototype.drawCurvedPlank = function (context, basePos, trackWidth) {
+                var cos = Math.cos(basePos);
+                var sin = Math.sin(basePos);
+                context.lineWidth = trackWidth;
+                context.strokeStyle = this.plankColour;
+                context.beginPath();
+                context.moveTo((play.firstTrackPosY - trackWidth) * cos, (play.firstTrackPosY - trackWidth) * sin);
+                context.lineTo((play.firstTrackPosY) * cos, (play.firstTrackPosY) * sin);
+                context.moveTo((play.firstTrackPosY + trackWidth) * cos, (play.firstTrackPosY + trackWidth) * sin);
+                context.lineTo((play.secondTrackPosY - trackWidth) * cos, (play.secondTrackPosY - trackWidth) * sin);
+                context.moveTo((play.secondTrackPosY) * cos, (play.secondTrackPosY) * sin);
+                context.lineTo((play.secondTrackPosY + trackWidth) * cos, (play.secondTrackPosY + trackWidth) * sin);
+                context.stroke();
+            };
+            return CurvedTrackSprite;
+        }(play.BaseTrackSprite));
+        play.CurvedTrackSprite = CurvedTrackSprite;
+    })(play = trains.play || (trains.play = {}));
+})(trains || (trains = {}));
+var trains;
+(function (trains) {
+    var play;
+    (function (play) {
+        var StraightTrackSprite = (function (_super) {
+            __extends(StraightTrackSprite, _super);
+            function StraightTrackSprite(cellSize, trackWidth) {
+                var _this = _super.call(this, cellSize) || this;
+                var numPlanks = 3;
+                var startX = 0;
+                var endX = cellSize;
+                var thirdGridSize = cellSize / 3;
+                _this.context.lineWidth = trackWidth;
+                _this.context.strokeStyle = _this.plankColour;
+                _this.context.beginPath();
+                for (var i = 1; i <= numPlanks; i++) {
+                    var xPosition = (thirdGridSize * i) - (thirdGridSize / 2);
+                    var yPosition = play.firstTrackPosY - trackWidth;
+                    _this.context.moveTo(xPosition, yPosition);
+                    _this.context.lineTo(xPosition, play.secondTrackPosY + trackWidth);
+                }
+                _this.context.stroke();
+                var endWidth = endX - startX;
+                _this.context.beginPath();
+                _this.context.clearRect(startX, play.firstTrackPosY, endWidth, trackWidth);
+                _this.context.clearRect(startX, play.secondTrackPosY - trackWidth, endWidth, trackWidth);
+                _this.context.lineWidth = 1;
+                _this.context.strokeStyle = _this.trackColour;
+                _this.context.beginPath();
+                _this.context.moveTo(startX, play.firstTrackPosY);
+                _this.context.lineTo(endX, play.firstTrackPosY);
+                _this.context.moveTo(startX, play.firstTrackPosY + trackWidth);
+                _this.context.lineTo(endX, play.firstTrackPosY + trackWidth);
+                _this.context.moveTo(startX, play.secondTrackPosY - trackWidth);
+                _this.context.lineTo(endX, play.secondTrackPosY - trackWidth);
+                _this.context.moveTo(startX, play.secondTrackPosY);
+                _this.context.lineTo(endX, play.secondTrackPosY);
+                _this.context.stroke();
+                return _this;
+            }
+            return StraightTrackSprite;
+        }(play.BaseTrackSprite));
+        play.StraightTrackSprite = StraightTrackSprite;
+    })(play = trains.play || (trains.play = {}));
+})(trains || (trains = {}));
+var trains;
+(function (trains) {
+    var play;
+    (function (play) {
+        var TrackSpriteCollection = (function () {
+            function TrackSpriteCollection(cellSize) {
+                this.StraightTrackSprite = new play.StraightTrackSprite(cellSize, play.trackWidth);
+                this.CurvedTrackSprite = new play.CurvedTrackSprite(cellSize, true, play.trackWidth);
+                this.CurvedTrackNoPlanksSprite = new play.CurvedTrackSprite(cellSize, false, play.trackWidth);
+            }
+            return TrackSpriteCollection;
+        }());
+        play.TrackSpriteCollection = TrackSpriteCollection;
+    })(play = trains.play || (trains.play = {}));
+})(trains || (trains = {}));
+var trains;
+(function (trains) {
+    var play;
+    (function (play) {
         var Track = (function (_super) {
             __extends(Track, _super);
-            function Track() {
-                return _super !== null && _super.apply(this, arguments) || this;
+            function Track(id, column, row, cellSize, spriteCollection) {
+                var _this = _super.call(this, id, column, row, cellSize) || this;
+                _this.SpriteCollection = spriteCollection;
+                return _this;
             }
+            Track.prototype.drawStraightTrack = function (context, cutOffTop, cutOffBottom) {
+                this.SpriteCollection.StraightTrackSprite.Draw(context, 0, 0);
+            };
+            Track.prototype.drawCurvedTrack = function (context, drawPlanks) {
+                (drawPlanks ? this.SpriteCollection.CurvedTrackSprite : this.SpriteCollection.CurvedTrackNoPlanksSprite).Draw(context, 0, 0);
+            };
             Track.prototype.draw = function (context) {
                 var _this = this;
                 context.save();
                 context.translate(this.x + 0.5, this.y + 0.5);
-                trains.play.CellRenderer.clearCell(context);
+                this.clear(context);
                 if (play.GameBoard.showDiagnostics) {
                     if (play.GameBoard.trains.some(function (t) { return t.isTrainHere(_this.column, _this.row, true); })) {
                         context.fillStyle = "#0000FF";
@@ -1038,14 +1247,14 @@ var trains;
                 switch (this.direction) {
                     case trains.play.Direction.Horizontal: {
                         var neighbours = trains.play.GameBoard.getNeighbouringCells(this.column, this.row);
-                        trains.play.CellRenderer.drawStraightTrack(context, neighbours.left === undefined, neighbours.right === undefined);
+                        this.drawStraightTrack(context, neighbours.left === undefined, neighbours.right === undefined);
                         break;
                     }
                     case trains.play.Direction.Vertical: {
                         var neighbours = trains.play.GameBoard.getNeighbouringCells(this.column, this.row);
                         context.translate(trains.play.gridSize, 0);
                         context.rotate(Math.PI / 2);
-                        trains.play.CellRenderer.drawStraightTrack(context, neighbours.up === undefined, neighbours.down === undefined);
+                        this.drawStraightTrack(context, neighbours.up === undefined, neighbours.down === undefined);
                         break;
                     }
                     case trains.play.Direction.LeftUp: {
@@ -1065,10 +1274,10 @@ var trains;
                         break;
                     }
                     case trains.play.Direction.Cross: {
-                        trains.play.CellRenderer.drawStraightTrack(context, false, false);
+                        this.drawStraightTrack(context, false, false);
                         context.translate(trains.play.gridSize, 0);
                         context.rotate(Math.PI / 2);
-                        trains.play.CellRenderer.drawStraightTrack(context, false, false);
+                        this.drawStraightTrack(context, false, false);
                         break;
                     }
                     case trains.play.Direction.LeftUpLeftDown: {
@@ -1109,20 +1318,20 @@ var trains;
             Track.prototype.rightDown = function (context, drawPlanks) {
                 context.translate(trains.play.gridSize, trains.play.gridSize);
                 context.rotate(Math.PI);
-                trains.play.CellRenderer.drawCurvedTrack(context, drawPlanks);
+                this.drawCurvedTrack(context, drawPlanks);
             };
             Track.prototype.rightUp = function (context, drawPlanks) {
                 context.translate(trains.play.gridSize, 0);
                 context.rotate(Math.PI / 2);
-                trains.play.CellRenderer.drawCurvedTrack(context, drawPlanks);
+                this.drawCurvedTrack(context, drawPlanks);
             };
             Track.prototype.leftUp = function (context, drawPlanks) {
-                trains.play.CellRenderer.drawCurvedTrack(context, drawPlanks);
+                this.drawCurvedTrack(context, drawPlanks);
             };
             Track.prototype.leftDown = function (context, drawPlanks) {
                 context.translate(0, trains.play.gridSize);
                 context.rotate(Math.PI * 1.5);
-                trains.play.CellRenderer.drawCurvedTrack(context, drawPlanks);
+                this.drawCurvedTrack(context, drawPlanks);
             };
             Track.prototype.turnAroundBrightEyes = function () {
                 if (this.direction === trains.play.Direction.RightDownLeftDown) {
@@ -1201,141 +1410,6 @@ var trains;
             return Loop;
         }());
         play.Loop = Loop;
-    })(play = trains.play || (trains.play = {}));
-})(trains || (trains = {}));
-var trains;
-(function (trains) {
-    var play;
-    (function (play) {
-        var ParticleHelper = (function () {
-            function ParticleHelper() {
-            }
-            ParticleHelper.MapByFactor = function (factor, min, max) {
-                return (factor * (max - min)) + min;
-            };
-            return ParticleHelper;
-        }());
-        play.ParticleHelper = ParticleHelper;
-    })(play = trains.play || (trains.play = {}));
-})(trains || (trains = {}));
-var trains;
-(function (trains) {
-    var play;
-    (function (play) {
-        var ParticleColor = (function () {
-            function ParticleColor(red, green, blue, alpha) {
-                this.Red = red;
-                this.Green = green;
-                this.Blue = blue;
-                this.Alpha = alpha;
-            }
-            ParticleColor.prototype.ToRGBA = function () {
-                return 'rgba(' + Math.round(this.Red) + ',' + Math.round(this.Green) + ',' + Math.round(this.Blue) + ',' + this.Alpha.toFixed(3) + ')';
-            };
-            ParticleColor.prototype.MapByFactor = function (factor, min, max) {
-                this.Red = play.ParticleHelper.MapByFactor(factor, min.Red, max.Red);
-                this.Green = play.ParticleHelper.MapByFactor(factor, min.Green, max.Green);
-                this.Blue = play.ParticleHelper.MapByFactor(factor, min.Blue, max.Blue);
-                this.Alpha = play.ParticleHelper.MapByFactor(factor, min.Alpha, max.Alpha);
-            };
-            return ParticleColor;
-        }());
-        play.ParticleColor = ParticleColor;
-    })(play = trains.play || (trains.play = {}));
-})(trains || (trains = {}));
-var trains;
-(function (trains) {
-    var play;
-    (function (play) {
-        var ParticlePoint = (function () {
-            function ParticlePoint(scale, angle, velocity, color) {
-                this.Scale = scale;
-                this.Angle = angle;
-                this.Velocity = velocity;
-                this.Color = color;
-            }
-            ParticlePoint.prototype.MapByFactor = function (factor, min, max) {
-                this.Scale = play.ParticleHelper.MapByFactor(factor, min.Scale, max.Scale);
-                this.Angle = play.ParticleHelper.MapByFactor(factor, min.Angle, max.Angle);
-                this.Velocity = play.ParticleHelper.MapByFactor(factor, min.Velocity, max.Velocity);
-                this.Color.MapByFactor(factor, min.Color, max.Color);
-            };
-            return ParticlePoint;
-        }());
-        play.ParticlePoint = ParticlePoint;
-    })(play = trains.play || (trains.play = {}));
-})(trains || (trains = {}));
-var trains;
-(function (trains) {
-    var play;
-    (function (play) {
-        var ParticleBase = (function (_super) {
-            __extends(ParticleBase, _super);
-            function ParticleBase(startPoint, endPoint) {
-                var _this = _super.call(this, 1, 0, 0, new play.ParticleColor(0, 0, 0, 1)) || this;
-                _this.life = 0;
-                _this.lifetime = 100;
-                _this.x = 0;
-                _this.y = 0;
-                _this.life = 0;
-                _this.StartPoint = startPoint;
-                _this.EndPoint = endPoint;
-                return _this;
-            }
-            ParticleBase.prototype.Update = function (lifeSteps) {
-                if (this.IsDead()) {
-                    return;
-                }
-                this.life = Math.min(this.life + lifeSteps, this.lifetime);
-                this.MapByFactor(this.life / this.lifetime, this.StartPoint, this.EndPoint);
-                this.x += this.Velocity * Math.cos(this.Angle);
-                this.y += this.Velocity * Math.sin(this.Angle);
-            };
-            ParticleBase.prototype.IsDead = function () {
-                return (this.life >= this.lifetime);
-            };
-            ParticleBase.prototype.Draw = function (context) {
-                throw new Error("abstract, not the art kind, but the extends kind");
-            };
-            ParticleBase.prototype.GetFillStyleAlpha = function () {
-                return this.Color.ToRGBA();
-            };
-            return ParticleBase;
-        }(play.ParticlePoint));
-        play.ParticleBase = ParticleBase;
-    })(play = trains.play || (trains.play = {}));
-})(trains || (trains = {}));
-var trains;
-(function (trains) {
-    var play;
-    (function (play) {
-        var ParticleSmoke = (function (_super) {
-            __extends(ParticleSmoke, _super);
-            function ParticleSmoke() {
-                var _this = _super.call(this, new play.ParticlePoint(0.5, Math.PI * (1.4 * Math.random()), 0.5, new play.ParticleColor(240, 240, 240, 0.4)), new play.ParticlePoint(1.1 + Math.random(), Math.PI * (1.4 * Math.random()), 0.3, new play.ParticleColor(241, 241, 241, 0))) || this;
-                _this.cloudNumber = (Math.random() * 5) + 4;
-                _this.cloudSeed = Math.random() * 10000;
-                return _this;
-            }
-            ParticleSmoke.prototype.Update = function (lifeSteps) {
-                _super.prototype.Update.call(this, lifeSteps);
-            };
-            ParticleSmoke.prototype.Draw = function (context) {
-                context.save();
-                context.translate(this.x, this.y);
-                context.rotate(this.Angle);
-                context.scale(this.Scale, this.Scale);
-                for (var i = 0; i < (Math.PI * 2); i += ((Math.PI * 2) / this.cloudNumber)) {
-                    context.beginPath();
-                    context.fillStyle = this.GetFillStyleAlpha();
-                    context.arc(5 * Math.cos(i), 5 * Math.sin(i), ((i * this.cloudSeed) % 5) + 3, 0, 2 * Math.PI);
-                    context.fill();
-                }
-                context.restore();
-            };
-            return ParticleSmoke;
-        }(play.ParticleBase));
-        play.ParticleSmoke = ParticleSmoke;
     })(play = trains.play || (trains.play = {}));
 })(trains || (trains = {}));
 var trains;
@@ -1548,6 +1622,7 @@ var trains;
                     }, false);
                 });
                 this.trainRenderer = new play.TrainRenderer(trains.play.gridSize, trains.play.firstTrackPosY, trains.play.secondTrackPosY);
+                this.trackSpriteCollection = new play.TrackSpriteCollection(trains.play.gridSize);
                 this.lightingBufferCanvas = document.createElement('canvas');
                 this.lightingBufferCanvas.width = this.canvasWidth;
                 this.lightingBufferCanvas.height = this.canvasHeight;
@@ -1570,7 +1645,7 @@ var trains;
                     for (var id in savedCells) {
                         if (savedCells.hasOwnProperty(id)) {
                             var theCell = savedCells[id];
-                            var newCell = new trains.play.Track(theCell.id, theCell.column, theCell.row);
+                            var newCell = new trains.play.Track(theCell.id, theCell.column, theCell.row, trains.play.gridSize, this.trackSpriteCollection);
                             newCell.direction = theCell.direction;
                             newCell.happy = theCell.happy;
                             newCell.switchState = theCell.switchState;
@@ -1719,7 +1794,7 @@ var trains;
                 var cellID = this.getCellID(column, row);
                 if (this.cells[cellID] === undefined) {
                     this.player.playSound(trains.audio.Sound.click);
-                    var newCell = new trains.play.Track(cellID, column, row);
+                    var newCell = new trains.play.Track(cellID, column, row, trains.play.gridSize, this.trackSpriteCollection);
                     this.cells[newCell.id] = newCell;
                     if (!newCell.crossTheRoad()) {
                         newCell.checkYourself();
