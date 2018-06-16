@@ -1,6 +1,6 @@
 @echo off
 git fetch --all
-git merge master
+git merge origin/master
 call tsc -p tsconfig.json
 git add .
 git commit -am "Build"
