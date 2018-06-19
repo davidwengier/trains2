@@ -736,8 +736,8 @@ var trains;
                     this.coords = {
                         currentX: cell.x + (trains.play.gridSize / 2),
                         currentY: cell.y + (trains.play.gridSize / 2),
-                        previousX: cell.x,
-                        previousY: cell.y - 1
+                        previousX: cell.x + (trains.play.gridSize / 2),
+                        previousY: cell.y + (trains.play.gridSize / 2) - 1,
                     };
                     if (Math.floor(Math.random() * 10) === 0) {
                         this.trainColourIndex = -1;
@@ -793,7 +793,13 @@ var trains;
                     return;
                 var baseSpeed = speed;
                 speed *= this.trainSpeed;
+                var speedDeadlockCounter = 0;
                 while (speed > 0.00001) {
+                    if (speedDeadlockCounter++ > 10) {
+                        console.log("SpeedDeadlock");
+                        this.hammerTime();
+                        break;
+                    }
                     var column = play.GameBoard.getGridCoord(this.coords.currentX);
                     var row = play.GameBoard.getGridCoord(this.coords.currentY);
                     var cell = play.GameBoard.getCell(column, row);
@@ -891,6 +897,9 @@ var trains;
                 var angle = Math.atan2(this.zeroIncrement((coords.currentX - cell.x) - xOffset), this.zeroIncrement((coords.currentY - cell.y) - yOffset));
                 var angleLast = Math.atan2(this.zeroIncrement((coords.previousX - cell.x) - xOffset), this.zeroIncrement((coords.previousY - cell.y) - yOffset));
                 var direction = this.magicBullshitCompareTo(angleLast, angle) * ((Math.abs(angleLast - angle) > Math.PI) ? -1 : 1);
+                if (direction === 0) {
+                    direction = -1;
+                }
                 var newAngle = (angle + ((speed / (trains.play.gridSize / 2)) * direction));
                 var angleSector = Math.floor((angle) / (Math.PI / 2)) * (Math.PI / 2);
                 if (newAngle < angleSector) {
