@@ -93,7 +93,6 @@ module trains.play {
             if (this.carriage !== undefined) {
                 this.carriage.spawnCarriage(count);
             } else {
-
                 var coords = {
                     currentX: this.coords.currentX,
                     currentY: this.coords.currentY,
@@ -101,11 +100,20 @@ module trains.play {
                     previousY: this.coords.currentY + (-10 * this.magicBullshitCompareTo(this.coords.currentY, this.coords.previousY))
                 };
 
-                this.carriage = new TrainCarriage(-1, coords, this.Renderer, this.trainColourIndex);
+                var stagedCarriage = new TrainCarriage(-1, coords, this.Renderer, this.trainColourIndex);
 
-                this.carriage.chooChooMotherFucker(this.carriagePadding + (trains.play.gridSize / 2), false);
-                this.carriage.coords.previousX = this.carriage.coords.currentX + (-10 * this.magicBullshitCompareTo(this.carriage.coords.currentX, this.carriage.coords.previousX));
-                this.carriage.coords.previousY = this.carriage.coords.currentY + (-10 * this.magicBullshitCompareTo(this.carriage.coords.currentY, this.carriage.coords.previousY));
+                stagedCarriage.chooChooMotherFucker(this.carriagePadding + (trains.play.gridSize / 2), false);
+                stagedCarriage.coords.previousX = stagedCarriage.coords.currentX + (-10 * this.magicBullshitCompareTo(stagedCarriage.coords.currentX, stagedCarriage.coords.previousX));
+                stagedCarriage.coords.previousY = stagedCarriage.coords.currentY + (-10 * this.magicBullshitCompareTo(stagedCarriage.coords.currentY, stagedCarriage.coords.previousY));
+
+                // can only place something down if there is a track there to place it on
+                if (GameBoard.getCell(GameBoard.getGridCoord(stagedCarriage.coords.currentX), GameBoard.getGridCoord(stagedCarriage.coords.currentY)) === undefined)
+                {
+                    return;
+                } 
+
+                this.carriage = stagedCarriage;
+
                 if ((--count) > 0) {
                     this.carriage.spawnCarriage(count);
                 }
@@ -143,7 +151,7 @@ module trains.play {
                 var cell = GameBoard.getCell(column, row);
                 if (cell !== undefined) {
                     var result = this.getNewCoordsForTrain(cell, this.coords, speed);
-                    if (checkCollision && this.collidesWith(result.coords)) {
+                    if (checkCollision && this.willNotHaveAFunTimeAt(result.coords)) {
                         this.waitForTrafficToClear(result.coords);
                         return;
                     }
@@ -401,10 +409,11 @@ module trains.play {
             context.restore();
         }
 
-        private collidesWith(_: TrainCoords): boolean {
+        private willNotHaveAFunTimeAt(_: TrainCoords): boolean {
             var frontCoords = this.getFrontOfTrain(10);
             var myColumn = GameBoard.getGridCoord(frontCoords.currentX);
             var myRow = GameBoard.getGridCoord(frontCoords.currentY);
+            if (GameBoard.getCell(myColumn, myRow) === undefined) return true;
             return GameBoard.trains.some(t => {
                 if (t === this) return false;
                 if (t.isTrainHere(myColumn, myRow)) {
@@ -417,7 +426,7 @@ module trains.play {
         private waitForTrafficToClear(coords: TrainCoords) {
             this.setPaused(true);
             var interval = setInterval(() => {
-                if (!this.collidesWith(coords)) {
+                if (!this.willNotHaveAFunTimeAt(coords)) {
                     clearInterval(interval);
                     this.setPaused(false);
                 }
