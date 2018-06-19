@@ -47,7 +47,7 @@ module trains.play {
         private maxRows: number;
 
         private cells: trains.play.BoardCells = {};
-        private tool: Tool;
+        private tool: Tool = trains.play.Tool.Pointer;
         
         private trainIDCounter = 0;
         public trains = new Array<trains.play.Train>();
@@ -110,7 +110,7 @@ module trains.play {
             [this.trackCanvas, this.trainCanvas].forEach(el => {            
                 el.addEventListener('click', (event: MouseEvent) => this.cellClick(event));
                 el.addEventListener('mousemove', (event: MouseEvent) => this.cellMoveOver(event));
-                el.addEventListener('touchstart', (event: any) => false);
+                el.addEventListener('touchstart', (_: any) => false);
                 el.addEventListener('touchmove', (event: any) => {
                     this.cellTouch(event);
                     event.preventDefault();
@@ -268,7 +268,7 @@ module trains.play {
                     var cellID = this.getCellID(column, row);
 
                     if (this.cells[cellID] !== undefined) {
-                        var t = new Train(this.trainIDCounter++, this.cells[cellID], this.trainRenderer);
+                        var t = Train.SpawnNewTrain(this.trainIDCounter++, this.cells[cellID], this.trainRenderer);
                         //Pre-move train to stop rendering at an odd angle.
                         t.chooChooMotherFucker(0.1, false);
                         this.trains.push(t);

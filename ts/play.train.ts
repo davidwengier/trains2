@@ -10,19 +10,10 @@ module trains.play {
 
 
     export class Train {
-        public defaultSpeed = 2;
-
-        public coords: trains.play.TrainCoords;
-
-        private lastCell: Cell;
-        private directionToUse: Direction;
-        private isPaused: boolean;
-
-        public trainColourIndex: number;
-
-        public name: string;
-
-        private trainSpeed: number;
+        private lastCell: Cell | undefined;
+        private directionToUse: Direction | undefined;
+        private isPaused: boolean = false;
+        private trainSpeed: number = 2;
         public imageReverse: number = 1;
 
         public carriage: trains.play.TrainCarriage | undefined;
@@ -33,29 +24,35 @@ module trains.play {
 
         public Renderer: TrainRenderer;
 
-        constructor(public id: number, cell: Cell | undefined, renderer: TrainRenderer) {
+        constructor(public id: number, 
+            public coords: trains.play.TrainCoords, 
+            renderer: TrainRenderer,
+            public trainColourIndex: number,
+            public name: string) {
+
             this.Renderer = renderer;
-            this.setTrainSpeed(this.defaultSpeed);
-            if (cell !== undefined) {
-                this.coords = this.GenerateSpawnCoords(cell, trains.play.gridSize);
-
-                if (Math.floor(Math.random() * 10) === 0) {
-                    this.trainColourIndex = -1;
-                } else {
-                    this.trainColourIndex = this.Renderer.GetRandomShaftColour();
-                }
-
-                this.name = trains.util.getRandomName();
-                if (Math.random() < 0.7) {
-                    this.spawnCarriage(Math.ceil(Math.random() * 5));
-                }
-                if (Math.random() < 0.7) {
-                    this.setTrainSpeed(Math.ceil(Math.random() * 5));
-                }
-            }
+            this.setTrainSpeed(this.trainSpeed);
         }
 
-        private GenerateSpawnCoords(cell: Cell, gridSize: number): TrainCoords {
+        public static SpawnNewTrain(id: number, cell: Cell, renderer: TrainRenderer) : Train
+        {
+            var coords = this.GenerateSpawnCoords(cell, trains.play.gridSize);
+
+            var trainColourIndex = Math.floor(Math.random() * 10) === 0 ? -1 : renderer.GetRandomShaftColour();
+            var trainName = trains.util.getRandomName();
+
+            var train = new Train(id, coords, renderer, trainColourIndex, trainName);
+            
+            if (Math.random() < 0.7) {
+                train.spawnCarriage(Math.ceil(Math.random() * 5));
+            }
+            if (Math.random() < 0.7) {
+                train.setTrainSpeed(Math.ceil(Math.random() * 5));
+            }
+            return train;
+        }
+
+        private static GenerateSpawnCoords(cell: Cell, gridSize: number): TrainCoords {
             if (cell.direction === undefined) throw "Cell needs direction to generate"
 
             var halfGridSize = gridSize / 2;
@@ -102,14 +99,21 @@ module trains.play {
                     previousX: this.coords.currentX + (-10 * this.magicBullshitCompareTo(this.coords.currentX, this.coords.previousX)),
                     previousY: this.coords.currentY + (-10 * this.magicBullshitCompareTo(this.coords.currentY, this.coords.previousY))
                 };
+
+                var stagedCarriage = new TrainCarriage(-1, coords, this.Renderer, this.trainColourIndex);
+
+                stagedCarriage.chooChooMotherFucker(this.carriagePadding + (trains.play.gridSize / 2), false);
+                stagedCarriage.coords.previousX = stagedCarriage.coords.currentX + (-10 * this.magicBullshitCompareTo(stagedCarriage.coords.currentX, stagedCarriage.coords.previousX));
+                stagedCarriage.coords.previousY = stagedCarriage.coords.currentY + (-10 * this.magicBullshitCompareTo(stagedCarriage.coords.currentY, stagedCarriage.coords.previousY));
+
                 // can only place something down if there is a track there to place it on
-                if (GameBoard.getCell(GameBoard.getGridCoord(coords.currentX), GameBoard.getGridCoord(coords.currentY)) === undefined) return;
-                this.carriage = new TrainCarriage(-1, undefined, this.Renderer);
-                this.carriage.coords = coords;
-                this.carriage.trainColourIndex = this.trainColourIndex;
-                this.carriage.chooChooMotherFucker(this.carriagePadding + (trains.play.gridSize / 2), false);
-                this.carriage.coords.previousX = this.carriage.coords.currentX + (-10 * this.magicBullshitCompareTo(this.carriage.coords.currentX, this.carriage.coords.previousX));
-                this.carriage.coords.previousY = this.carriage.coords.currentY + (-10 * this.magicBullshitCompareTo(this.carriage.coords.currentY, this.carriage.coords.previousY));
+                if (GameBoard.getCell(GameBoard.getGridCoord(stagedCarriage.coords.currentX), GameBoard.getGridCoord(stagedCarriage.coords.currentY)) === undefined)
+                {
+                    return;
+                } 
+
+                this.carriage = stagedCarriage;
+
                 if ((--count) > 0) {
                     this.carriage.spawnCarriage(count);
                 }
@@ -227,9 +231,13 @@ module trains.play {
         }
 
         getNewCoordsForTrain(cell: Cell, coords: trains.play.TrainCoords, speed: number): TrainCoordsResult {
-            if (this.lastCell !== cell) {
+            if (this.lastCell == undefined || this.lastCell !== cell) {
                 this.directionToUse = cell.getDirectionToUse(this.lastCell);
                 this.lastCell = cell;
+            }
+
+            if(this.directionToUse === undefined) {
+                throw new Error("Direction to use was undefined, was a last cell set?");
             }
 
             if (this.directionToUse === trains.play.Direction.Vertical) {
@@ -401,7 +409,7 @@ module trains.play {
             context.restore();
         }
 
-        private willNotHaveAFunTimeAt(coords: TrainCoords): boolean {
+        private willNotHaveAFunTimeAt(_: TrainCoords): boolean {
             var frontCoords = this.getFrontOfTrain(10);
             var myColumn = GameBoard.getGridCoord(frontCoords.currentX);
             var myRow = GameBoard.getGridCoord(frontCoords.currentY);
@@ -432,10 +440,15 @@ module trains.play {
             }
         }
     }
+    
     export class TrainCarriage extends Train {
 
-        constructor(public id: number, cell: Cell | undefined, renderer: TrainRenderer) {
-            super(id, cell, renderer);
+        constructor(id: number, 
+            coords: trains.play.TrainCoords, 
+            renderer: TrainRenderer,
+            trainColourIndex: number) {
+
+            super(id, coords, renderer, trainColourIndex, "carriage");
         }
 
         public draw(context: CanvasRenderingContext2D, translate: boolean = true): void {
@@ -462,7 +475,7 @@ module trains.play {
             }
         }
 
-        public drawLighting(context: CanvasRenderingContext2D): void {
+        public drawLighting(_: CanvasRenderingContext2D): void {
             //Do nothing
         }
     }

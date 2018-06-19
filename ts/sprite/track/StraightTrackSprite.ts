@@ -6,7 +6,7 @@ module trains.play {
             super(cellSize);
 
             var numPlanks = 3;
-            var startX = 0;
+            var startX = -1;
             var endX = cellSize;
             var thirdGridSize = cellSize / 3;
 

@@ -2,8 +2,17 @@
     "compilerOptions": {
         "target": "es5",
         "module": "amd",
+
+        "strict": true, 
         "noImplicitAny": true,
         "strictNullChecks": true,
+        "noImplicitThis": true,
+        "alwaysStrict": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "noImplicitReturns": true,
+        "noFallthroughCasesInSwitch": true,
+
         "sourceMap": true,
         "removeComments": true,
         "preserveConstEnums": true,

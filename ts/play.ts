@@ -8,6 +8,8 @@ module trains.play {
 
     export function InitialisePlay($container: JQuery): void {
         var manager = new trains.play.PlayManager($container);
+
+        manager.Start();
     }
 
     export var GameBoard: Board;
@@ -16,7 +18,7 @@ module trains.play {
 
         private playComponents: trains.play.PlayComponents;
 
-        constructor(private $container: JQuery) {
+        constructor($container: JQuery) {
             this.playComponents = GetPlayComponent($container);
             trains.play.GameBoard = new trains.play.Board(this.playComponents);
 
@@ -33,7 +35,9 @@ module trains.play {
                 handle: '.ui-handle',
                 containment: 'body'
             });
+        }
 
+        public Start(): void {
             this.AttachEvents();
 
             GameBoard.loadCells();
@@ -97,7 +101,7 @@ module trains.play {
                 }
             });
 
-            trains.event.On("speedchanged", (event, trainID: number, speed: number) => {
+            trains.event.On("speedchanged", (_, trainID: number, speed: number) => {
                 var setTrainSpeed = false;
                 if (trains.play.GameBoard.selectedTrain !== undefined) {
                     if (trainID === trains.play.GameBoard.selectedTrain.id) {
@@ -112,7 +116,7 @@ module trains.play {
                 }
             });
 
-            trains.event.On("showtraincontrols", (event, train: trains.play.Train) => {
+            trains.event.On("showtraincontrols", (_, train: trains.play.Train) => {
                 this.playComponents.$trainName.text(train.name);
                 this.playComponents.$trainButtons.addClass("flipInX").show();
                 this.playComponents.$trainButtons.one(trains.play.animationEndEventString, () => {
@@ -121,7 +125,7 @@ module trains.play {
                 this.DisplayTrainSpeed(train.getTrainSpeed());
             });
 
-            trains.event.On("hidetraincontrols", (event) => {
+            trains.event.On("hidetraincontrols", (_) => {
                 this.playComponents.$trainButtons.addClass("flipOutX");
                 this.playComponents.$trainButtons.one(trains.play.animationEndEventString, () => {
                     this.playComponents.$trainButtons.removeClass("flipOutX").hide();

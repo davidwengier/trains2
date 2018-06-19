@@ -4,7 +4,7 @@ module trains.play {
 
     export class Cell {
 
-        public switchState: boolean;
+        public switchState: boolean = false;
         public happy: boolean;
         public x: number;
         public y: number;
@@ -19,7 +19,7 @@ module trains.play {
             this.direction = trains.play.Direction.None;
         }
 
-        draw(context: CanvasRenderingContext2D): void {
+        draw(_: CanvasRenderingContext2D): void {
             throw new Error("This method is abstract.. no really.. come on.. just pretend! It will be fun I promise.");
         }
 
@@ -258,7 +258,7 @@ module trains.play {
             }, 10);
         }
 
-        public getDirectionToUse(lastCell: Cell): Direction {
+        public getDirectionToUse(lastCell: Cell | undefined): Direction {
             if (lastCell !== undefined) {
                 var neighbours = GameBoard.getNeighbouringCells(lastCell.column, lastCell.row);
                 if (this.direction === Direction.LeftUpLeftDown) {
