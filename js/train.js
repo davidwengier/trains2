@@ -733,12 +733,7 @@ var trains;
                 this.Renderer = renderer;
                 this.setTrainSpeed(this.defaultSpeed);
                 if (cell !== undefined) {
-                    this.coords = {
-                        currentX: cell.x + (trains.play.gridSize / 2),
-                        currentY: cell.y + (trains.play.gridSize / 2),
-                        previousX: cell.x + (trains.play.gridSize / 2),
-                        previousY: cell.y + (trains.play.gridSize / 2) - 1,
-                    };
+                    this.coords = this.GenerateSpawnCoords(cell, trains.play.gridSize);
                     if (Math.floor(Math.random() * 10) === 0) {
                         this.trainColourIndex = -1;
                     }
@@ -754,6 +749,39 @@ var trains;
                     }
                 }
             }
+            Train.prototype.GenerateSpawnCoords = function (cell, gridSize) {
+                if (cell.direction === undefined)
+                    throw "Cell needs direction to generate";
+                var halfGridSize = gridSize / 2;
+                var cx = cell.x + halfGridSize;
+                var cy = cell.y + halfGridSize;
+                switch (cell.direction) {
+                    case (trains.play.Direction.Horizontal):
+                    case (trains.play.Direction.Cross):
+                    case (trains.play.Direction.RightDown):
+                    case (trains.play.Direction.RightDownRightUp):
+                        cx = cell.x + gridSize;
+                        break;
+                    case (trains.play.Direction.Vertical):
+                    case (trains.play.Direction.LeftDown):
+                    case (trains.play.Direction.RightDownLeftDown):
+                        cy = cell.y + gridSize;
+                        break;
+                    case (trains.play.Direction.LeftUp):
+                    case (trains.play.Direction.LeftUpLeftDown):
+                        cx = cell.x;
+                        break;
+                    case (trains.play.Direction.RightUp):
+                    case (trains.play.Direction.LeftUpRightUp):
+                        cy = cell.y;
+                }
+                return {
+                    currentX: cx,
+                    currentY: cy,
+                    previousX: ((cell.x + halfGridSize) + 9 * cx) / 10,
+                    previousY: ((cell.y + halfGridSize) + 9 * cy) / 10
+                };
+            };
             Train.prototype.spawnCarriage = function (count) {
                 if (count === void 0) { count = 1; }
                 if (this.carriage !== undefined) {
