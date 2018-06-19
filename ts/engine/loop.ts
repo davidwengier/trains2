@@ -2,20 +2,19 @@
 
 module trains.play {
     export class Loop {
-        //To be extended:
-        targetLoopsPerSecond = 1;
-        private minimumTimeout = 10;
-        //Other:
-        //TODO: create getters!
-        loopRunning = false;
-        lastDuration = 0;
-        lastStartTime = 0;
-        loopStartTime: number;
-        lastLoopEndTime: number;
-        averageLoopsPerSecond = 1;
-        averageLoopsPerSecondSampleSize = 5;
+        private loopRunning = false;
+        private lastDuration = 0;
+        private lastStartTime = 0;
+        private loopStartTime: number;
+        private lastLoopEndTime: number;
+        private averageLoopsPerSecond = 1;
+        private averageLoopsPerSecondSampleSize = 5;
         private timeoutId: number = -1;
-        //TODO: implement strictTiming
+
+        constructor(private targetLoopsPerSecond: number, private minimumTimeout: number = 10)
+        {
+
+        }
 
         public startLoop(): void {
             if (this.timeoutId < 0) {
@@ -36,6 +35,17 @@ module trains.play {
                     this.timeoutId = -1;
                 }
             }
+        }
+
+        public ElapsedSinceLastStart() {
+            return this.loopStartTime - this.lastStartTime;
+        }
+        public ElapsedSinceLastEnd() {
+            return this.loopStartTime - this.lastLoopEndTime
+        }
+
+        public GetPerformanceString() {
+            return this.lastDuration.toFixed(2) + "ms (" + this.averageLoopsPerSecond.toFixed(2) + "/s)";
         }
 
         private loopCallback(): void {
