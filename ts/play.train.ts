@@ -101,10 +101,10 @@ module trains.play {
             var speedDeadlockCounter = 0;
             while (speed > 0.00001) {
                 if(speedDeadlockCounter++ > 10){
-                     //throw "SpeedDeadlock";
-                     console.log("SpeedDeadlock");
-                     this.hammerTime();
-                     break;
+                    // This needs to be cleaned up/fixed now that we can detect it!
+                    console.log("SpeedDeadlock");
+                    this.hammerTime();
+                    break;
                 }
 
                 var column = GameBoard.getGridCoord(this.coords.currentX);
@@ -239,10 +239,7 @@ module trains.play {
             var direction = this.magicBullshitCompareTo(angleLast, angle) * ((Math.abs(angleLast - angle) > Math.PI) ? -1 : 1);
 
             //If we end up with a direction of 0, it means we are stuck!
-            // Normally happens after a train is placed on a corner.
-            // Simple fix, force it to move!
             if(direction === 0) {
-                console.log("Direction zero issue");
                 direction = -1;
             }
 
