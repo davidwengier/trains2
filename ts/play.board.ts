@@ -268,7 +268,7 @@ module trains.play {
                     var cellID = this.getCellID(column, row);
 
                     if (this.cells[cellID] !== undefined) {
-                        var t = new Train(this.trainIDCounter++, this.cells[cellID], this.trainRenderer);
+                        var t = Train.SpawnNewTrain(this.trainIDCounter++, this.cells[cellID], this.trainRenderer);
                         //Pre-move train to stop rendering at an odd angle.
                         t.chooChooMotherFucker(0.1);
                         this.trains.push(t);
