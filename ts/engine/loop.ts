@@ -10,15 +10,15 @@ module trains.play {
         loopRunning = false;
         lastDuration = 0;
         lastStartTime = 0;
-        loopStartTime;
-        lastLoopEndTime;
+        loopStartTime: number;
+        lastLoopEndTime: number;
         averageLoopsPerSecond = 1;
         averageLoopsPerSecondSampleSize = 5;
-        private timeoutId;
+        private timeoutId: number = -1;
         //TODO: implement strictTiming
 
         public startLoop(): void {
-            if (this.timeoutId === undefined) {
+            if (this.timeoutId < 0) {
                 this.loopCallback();
             }
             this.loopRunning = true;
@@ -33,13 +33,13 @@ module trains.play {
                 try {
                     clearTimeout(this.timeoutId);
                 } finally {
-                    this.timeoutId = undefined;
+                    this.timeoutId = -1;
                 }
             }
         }
 
         private loopCallback(): void {
-            this.timeoutId = undefined;
+            this.timeoutId = -1;
             if (this.lastLoopEndTime !== undefined) {
                 this.loopStartTime = new Date().getTime();
                 if (this.lastStartTime === 0) {

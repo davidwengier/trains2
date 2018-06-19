@@ -25,7 +25,7 @@ module trains.play {
         private trainSpeed: number;
         public imageReverse: number = 1;
 
-        public carriage: trains.play.TrainCarriage;
+        public carriage: trains.play.TrainCarriage | undefined;
 
         public carriagePadding: number = 2;
 
@@ -33,7 +33,7 @@ module trains.play {
 
         public Renderer: TrainRenderer;
 
-        constructor(public id: number, cell: Cell, renderer: TrainRenderer) {
+        constructor(public id: number, cell: Cell | undefined, renderer: TrainRenderer) {
             this.Renderer = renderer;
             this.setTrainSpeed(this.defaultSpeed);
             if (cell !== undefined) {
@@ -375,14 +375,16 @@ module trains.play {
         }
 
         public drawLink(context: CanvasRenderingContext2D): void {
+            if(this.carriage === undefined) return;
+
             var sp1 = (trains.play.gridSize / 2) / Math.sqrt(Math.pow(this.coords.currentX - this.coords.previousX, 2) + Math.pow(this.coords.currentY - this.coords.previousY, 2));
             var x1 = this.coords.currentX - ((this.coords.currentX - this.coords.previousX) * sp1 * this.imageReverse);
             var y1 = this.coords.currentY - ((this.coords.currentY - this.coords.previousY) * sp1 * this.imageReverse);
 
+            
             var sp2 = (trains.play.gridSize / 2) / Math.sqrt(Math.pow(this.carriage.coords.currentX - this.carriage.coords.previousX, 2) + Math.pow(this.carriage.coords.currentY - this.carriage.coords.previousY, 2));
             var x2 = this.carriage.coords.currentX + ((this.carriage.coords.currentX - this.carriage.coords.previousX) * sp2 * this.imageReverse);
             var y2 = this.carriage.coords.currentY + ((this.carriage.coords.currentY - this.carriage.coords.previousY) * sp2 * this.imageReverse);
-
 
             context.save();
             context.lineWidth = 3;
@@ -428,7 +430,7 @@ module trains.play {
     }
     export class TrainCarriage extends Train {
 
-        constructor(public id: number, cell: Cell, renderer: TrainRenderer) {
+        constructor(public id: number, cell: Cell | undefined, renderer: TrainRenderer) {
             super(id, cell, renderer);
         }
 

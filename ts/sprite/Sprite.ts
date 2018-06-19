@@ -1,13 +1,21 @@
 module trains.play {
     export class Sprite {
-        private readonly canvas;
+        private readonly canvas: HTMLCanvasElement;
         public readonly context: CanvasRenderingContext2D;
         private restored: boolean = false;
         constructor(width: number, height: number) {
             this.canvas = document.createElement("canvas");
             this.canvas.width = width;
             this.canvas.height = height;
-            this.context = this.canvas.getContext("2d");
+
+            var context = this.canvas.getContext("2d");
+
+            if(context === null)
+            {
+                throw "Unable to get 2d context from canvas"
+            }
+
+            this.context = context;
 
             // Blurry drawing fix
             this.context.save();

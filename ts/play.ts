@@ -50,7 +50,9 @@ module trains.play {
             });
 
             this.playComponents.$globalButtons.find('button').click((event) => {
-                trains.play.GameBoard.globalControlClick(event.currentTarget);
+                if(event.currentTarget !== null) {
+                    trains.play.GameBoard.globalControlClick(event.currentTarget);
+                }
             });
 
             this.playComponents.$trainButtons.find('.ui-close').click(() => {
@@ -58,12 +60,16 @@ module trains.play {
             });
 
             this.playComponents.$trainButtons.find('button').click((event) => {
-                trains.play.GameBoard.trainControlClick(event.currentTarget);
+                if(event.currentTarget !== null) {
+                    trains.play.GameBoard.trainControlClick(event.currentTarget);
+                }
             });
 
             this.playComponents.$trackButtons.find('button').click((event) => {
-                trains.play.GameBoard.trackControlClick(event.currentTarget);
-                trains.util.selectButton($(event.currentTarget));
+                if(event.currentTarget !== null) {
+                    trains.play.GameBoard.trackControlClick(event.currentTarget);
+                    trains.util.selectButton($(event.currentTarget));
+                }
             });
 
             this.playComponents.$mute.click(() => {
