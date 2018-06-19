@@ -258,7 +258,7 @@ module trains.play {
             }, 10);
         }
 
-        public getDirectionToUse(lastCell: Cell): Direction {
+        public getDirectionToUse(lastCell: Cell | undefined): Direction {
             if (lastCell !== undefined) {
                 var neighbours = GameBoard.getNeighbouringCells(lastCell.column, lastCell.row);
                 if (this.direction === Direction.LeftUpLeftDown) {

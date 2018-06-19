@@ -10,8 +10,8 @@ module trains.play {
 
 
     export class Train {
-        private lastCell: Cell;
-        private directionToUse: Direction;
+        private lastCell: Cell | undefined;
+        private directionToUse: Direction | undefined;
         private isPaused: boolean = false;
         private trainSpeed: number = 2;
         public imageReverse: number = 1;
@@ -223,9 +223,13 @@ module trains.play {
         }
 
         getNewCoordsForTrain(cell: Cell, coords: trains.play.TrainCoords, speed: number): TrainCoordsResult {
-            if (this.lastCell !== cell) {
+            if (this.lastCell == undefined || this.lastCell !== cell) {
                 this.directionToUse = cell.getDirectionToUse(this.lastCell);
                 this.lastCell = cell;
+            }
+
+            if(this.directionToUse === undefined) {
+                throw new Error("Direction to use was undefined, was a last cell set?");
             }
 
             if (this.directionToUse === trains.play.Direction.Vertical) {
