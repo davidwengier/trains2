@@ -8,7 +8,7 @@
 /// <reference path="play.loop.game.ts" />
 /// <reference path="play.loop.render.ts" />
 /// <reference path="sound/Player.ts" />
-/// <reference path="sound/ClickSound.ts" />
+/// <reference path="sound/SoundLibrary.ts" />
 /// <reference path="particle/types/SmokeParticle.ts" />
 /// <reference path="sprite/TrackSpriteCollection.ts" />
 
@@ -310,7 +310,7 @@ module trains.play {
             var cellID = this.getCellID(column, row);
 
             if (this.cells[cellID] === undefined) {
-                this.player.playSound(trains.audio.ClickSound.Instance);
+                this.player.playSound(trains.audio.SoundLibrary.ClickSound);
                 var newCell = new trains.play.Track(cellID, column, row, trains.play.gridSize, this.trackSpriteCollection);
 
                 this.cells[newCell.id] = newCell;
