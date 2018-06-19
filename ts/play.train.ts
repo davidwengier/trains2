@@ -8,7 +8,7 @@
 
 module trains.play {
 
-    
+
     export class Train {
         public defaultSpeed = 2;
 
@@ -31,18 +31,13 @@ module trains.play {
 
         public nextSmoke = 0;
 
-        public Renderer:TrainRenderer;
+        public Renderer: TrainRenderer;
 
-        constructor(public id: number, cell: Cell, renderer:TrainRenderer) {
+        constructor(public id: number, cell: Cell, renderer: TrainRenderer) {
             this.Renderer = renderer;
             this.setTrainSpeed(this.defaultSpeed);
             if (cell !== undefined) {
-                this.coords = {
-                    currentX: cell.x + (trains.play.gridSize / 2),
-                    currentY: cell.y + (trains.play.gridSize / 2),
-                    previousX: cell.x + (trains.play.gridSize / 2),
-                    previousY: cell.y + (trains.play.gridSize / 2) - 1, //Cos we never want to be the centre of attention
-                };
+                this.coords = this.GenerateSpawnCoords(cell, trains.play.gridSize);
 
                 if (Math.floor(Math.random() * 10) === 0) {
                     this.trainColourIndex = -1;
@@ -58,6 +53,43 @@ module trains.play {
                     this.setTrainSpeed(Math.ceil(Math.random() * 5));
                 }
             }
+        }
+
+        private GenerateSpawnCoords(cell: Cell, gridSize: number): TrainCoords {
+            if (cell.direction === undefined) throw "Cell needs direction to generate"
+
+            var halfGridSize = gridSize / 2;
+
+            var cx = cell.x + halfGridSize;
+            var cy = cell.y + halfGridSize;
+
+            switch (cell.direction) {
+                case (trains.play.Direction.Horizontal):
+                case (trains.play.Direction.Cross):
+                case (trains.play.Direction.RightDown):
+                case (trains.play.Direction.RightDownRightUp):
+                    cx = cell.x + gridSize; // Train pointing to the right
+                    break;
+                case (trains.play.Direction.Vertical):
+                case (trains.play.Direction.LeftDown):
+                case (trains.play.Direction.RightDownLeftDown):
+                    cy = cell.y + gridSize; // Train pointing down
+                    break;
+                case (trains.play.Direction.LeftUp):
+                case (trains.play.Direction.LeftUpLeftDown):
+                    cx = cell.x; // Train pointing left
+                    break;
+                case (trains.play.Direction.RightUp):
+                case (trains.play.Direction.LeftUpRightUp):
+                    cy = cell.y; // Train pointing up
+            }
+
+            return {
+                currentX: cx,
+                currentY: cy,
+                previousX: ((cell.x + halfGridSize) + 9 * cx) / 10, // Normalise position from middle towards target position
+                previousY: ((cell.y + halfGridSize) + 9 * cy) / 10
+            };
         }
 
         public spawnCarriage(count: number = 1): void {
@@ -100,7 +132,7 @@ module trains.play {
             // First occurrence of this bug, speed was 1.13e-14!!!!!
             var speedDeadlockCounter = 0;
             while (speed > 0.00001) {
-                if(speedDeadlockCounter++ > 10){
+                if (speedDeadlockCounter++ > 10) {
                     // This needs to be cleaned up/fixed now that we can detect it!
                     console.log("SpeedDeadlock");
                     this.hammerTime();
@@ -119,8 +151,7 @@ module trains.play {
 
                     this.coords = result.coords;
                     speed = result.remainingSpeed;
-                }
-                else {
+                } else {
                     break;
                 }
             }
@@ -178,8 +209,7 @@ module trains.play {
             var targetY = currentY + (speed * this.magicBullshitCompareTo((swapAxis ? coords.previousX : coords.previousY), currentY));
             if (targetY < cellY) {
                 targetY = cellY - 0.001;
-            }
-            else if (targetY > (cellY + trains.play.gridSize)) {
+            } else if (targetY > (cellY + trains.play.gridSize)) {
                 targetY = cellY + trains.play.gridSize + 0.001;
             }
             return {
@@ -201,13 +231,9 @@ module trains.play {
 
             if (this.directionToUse === trains.play.Direction.Vertical) {
                 return this.straightTrackCalculate(cell, coords, speed);
-            }
-
-            else if (this.directionToUse === trains.play.Direction.Horizontal) {
+            } else if (this.directionToUse === trains.play.Direction.Horizontal) {
                 return this.straightTrackCalculate(cell, coords, speed, true);
-            }
-
-            else if (this.directionToUse === trains.play.Direction.Cross) {
+            } else if (this.directionToUse === trains.play.Direction.Cross) {
                 return this.straightTrackCalculate(cell, coords, speed, (Math.abs(coords.currentX - coords.previousX) > Math.abs(coords.currentY - coords.previousY)));
             }
 
@@ -239,7 +265,7 @@ module trains.play {
             var direction = this.magicBullshitCompareTo(angleLast, angle) * ((Math.abs(angleLast - angle) > Math.PI) ? -1 : 1);
 
             //If we end up with a direction of 0, it means we are stuck!
-            if(direction === 0) {
+            if (direction === 0) {
                 direction = -1;
             }
 
@@ -294,8 +320,7 @@ module trains.play {
             if (translate) {
                 context.translate(x, y);
                 context.rotate((angle * -1) + ((this.imageReverse < 0) ? Math.PI : 0));
-            }
-            else {
+            } else {
                 context.translate(play.gridSize / 2, play.gridSize / 2);
             }
 
@@ -404,7 +429,7 @@ module trains.play {
     }
     export class TrainCarriage extends Train {
 
-        constructor(public id: number, cell: Cell, renderer:TrainRenderer) {
+        constructor(public id: number, cell: Cell, renderer: TrainRenderer) {
             super(id, cell, renderer);
         }
 
@@ -418,8 +443,7 @@ module trains.play {
             if (translate) {
                 context.translate(x, y);
                 context.rotate((angle * -1) + ((this.imageReverse < 0) ? Math.PI : 0));
-            }
-            else {
+            } else {
                 context.translate(play.gridSize / 2, play.gridSize / 2);
             }
 

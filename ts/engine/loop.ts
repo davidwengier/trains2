@@ -55,6 +55,7 @@ module trains.play {
                 this.lastStartTime = this.loopStartTime;
             }
             this.lastLoopEndTime = new Date().getTime();
+            
             this.timeoutId = setTimeout(() => this.loopCallback(), Math.max((1000 / this.targetLoopsPerSecond) - this.lastDuration, this.minimumTimeout));
         }
 
