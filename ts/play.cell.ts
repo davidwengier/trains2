@@ -19,7 +19,7 @@ module trains.play {
             this.direction = trains.play.Direction.None;
         }
 
-        draw(context: CanvasRenderingContext2D): void {
+        draw(_: CanvasRenderingContext2D): void {
             throw new Error("This method is abstract.. no really.. come on.. just pretend! It will be fun I promise.");
         }
 

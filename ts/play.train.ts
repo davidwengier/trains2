@@ -398,7 +398,7 @@ module trains.play {
             context.restore();
         }
 
-        private collidesWith(coords: TrainCoords): boolean {
+        private collidesWith(_: TrainCoords): boolean {
             var frontCoords = this.getFrontOfTrain(10);
             var myColumn = GameBoard.getGridCoord(frontCoords.currentX);
             var myRow = GameBoard.getGridCoord(frontCoords.currentY);
@@ -458,7 +458,7 @@ module trains.play {
             }
         }
 
-        public drawLighting(context: CanvasRenderingContext2D): void {
+        public drawLighting(_: CanvasRenderingContext2D): void {
             //Do nothing
         }
     }
