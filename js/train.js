@@ -1200,7 +1200,8 @@ var trains;
     (function (play) {
         var StraightTrackSprite = (function (_super) {
             __extends(StraightTrackSprite, _super);
-            function StraightTrackSprite(cellSize, trackWidth) {
+            function StraightTrackSprite(cellSize, trackWidth, terminator) {
+                if (terminator === void 0) { terminator = false; }
                 var _this = _super.call(this, cellSize) || this;
                 var numPlanks = 3;
                 var startX = 0;
@@ -1214,6 +1215,9 @@ var trains;
                     var yPosition = play.firstTrackPosY - trackWidth;
                     _this.context.moveTo(xPosition, yPosition);
                     _this.context.lineTo(xPosition, play.secondTrackPosY + trackWidth);
+                    if (terminator && i === numPlanks) {
+                        endX = xPosition - 1;
+                    }
                 }
                 _this.context.stroke();
                 var endWidth = endX - startX;
@@ -1245,7 +1249,8 @@ var trains;
     (function (play) {
         var TrackSpriteCollection = (function () {
             function TrackSpriteCollection(cellSize) {
-                this.StraightTrackSprite = new play.StraightTrackSprite(cellSize, play.trackWidth);
+                this.StraightTrackSprite = new play.StraightTrackSprite(cellSize, play.trackWidth, false);
+                this.StraightTerminatorTrackSprite = new play.StraightTrackSprite(cellSize, play.trackWidth, true);
                 this.CurvedTrackSprite = new play.CurvedTrackSprite(cellSize, true, play.trackWidth);
                 this.CurvedTrackNoPlanksSprite = new play.CurvedTrackSprite(cellSize, false, play.trackWidth);
             }
@@ -1266,7 +1271,16 @@ var trains;
                 return _this;
             }
             Track.prototype.drawStraightTrack = function (context, cutOffTop, cutOffBottom) {
-                this.SpriteCollection.StraightTrackSprite.Draw(context, 0, 0);
+                if ((cutOffTop || cutOffBottom) && (cutOffTop != cutOffBottom)) {
+                    if (cutOffTop) {
+                        context.translate(trains.play.gridSize, trains.play.gridSize);
+                        context.rotate(Math.PI);
+                    }
+                    this.SpriteCollection.StraightTerminatorTrackSprite.Draw(context, 0, 0);
+                }
+                else {
+                    this.SpriteCollection.StraightTrackSprite.Draw(context, 0, 0);
+                }
             };
             Track.prototype.drawCurvedTrack = function (context, drawPlanks) {
                 (drawPlanks ? this.SpriteCollection.CurvedTrackSprite : this.SpriteCollection.CurvedTrackNoPlanksSprite).Draw(context, 0, 0);
