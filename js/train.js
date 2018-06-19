@@ -788,13 +788,16 @@ var trains;
                     this.carriage.spawnCarriage(count);
                 }
                 else {
-                    this.carriage = new TrainCarriage(-1, undefined, this.Renderer);
-                    this.carriage.coords = {
+                    var coords = {
                         currentX: this.coords.currentX,
                         currentY: this.coords.currentY,
                         previousX: this.coords.currentX + (-10 * this.magicBullshitCompareTo(this.coords.currentX, this.coords.previousX)),
                         previousY: this.coords.currentY + (-10 * this.magicBullshitCompareTo(this.coords.currentY, this.coords.previousY))
                     };
+                    if (play.GameBoard.getCell(play.GameBoard.getGridCoord(coords.currentX), play.GameBoard.getGridCoord(coords.currentY)) === undefined)
+                        return;
+                    this.carriage = new TrainCarriage(-1, undefined, this.Renderer);
+                    this.carriage.coords = coords;
                     this.carriage.trainColourIndex = this.trainColourIndex;
                     this.carriage.chooChooMotherFucker(this.carriagePadding + (trains.play.gridSize / 2), false);
                     this.carriage.coords.previousX = this.carriage.coords.currentX + (-10 * this.magicBullshitCompareTo(this.carriage.coords.currentX, this.carriage.coords.previousX));
