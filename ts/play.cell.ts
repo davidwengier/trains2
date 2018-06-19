@@ -50,10 +50,10 @@ module trains.play {
                 var myNeighbours = GameBoard.getNeighbouringCells(c.column, c.row, true);
                 if (myNeighbours.all.length < 4) return false;
 
-                if (!myNeighbours.up.isConnectedDown() && myNeighbours.up.happy) return false;
-                if (!myNeighbours.down.isConnectedUp() && myNeighbours.down.happy) return false;
-                if (!myNeighbours.left.isConnectedRight() && myNeighbours.left.happy) return false;
-                if (!myNeighbours.right.isConnectedLeft() && myNeighbours.right.happy) return false;
+                if (myNeighbours.up !== undefined && !myNeighbours.up.isConnectedDown() && myNeighbours.up.happy) return false;
+                if (myNeighbours.down !== undefined && !myNeighbours.down.isConnectedUp() && myNeighbours.down.happy) return false;
+                if (myNeighbours.left !== undefined && !myNeighbours.left.isConnectedRight() && myNeighbours.left.happy) return false;
+                if (myNeighbours.right !== undefined && !myNeighbours.right.isConnectedLeft() && myNeighbours.right.happy) return false;
 
                 // if we got here, we should be a cross
                 c.direction = Direction.Cross;
@@ -88,13 +88,21 @@ module trains.play {
                     return false;
                 }
             } else {
-                if (myNeighbours.up.isConnectedDown() && myNeighbours.down.isConnectedUp() && myNeighbours.right.isConnectedLeft()) {
+                if (myNeighbours.up !== undefined && myNeighbours.up.isConnectedDown() && 
+                    myNeighbours.down !== undefined && myNeighbours.down.isConnectedUp() && 
+                    myNeighbours.right !== undefined && myNeighbours.right.isConnectedLeft()) {
                     this.direction = Direction.RightDownRightUp;
-                } else if (myNeighbours.up.isConnectedDown() && myNeighbours.down.isConnectedUp() && myNeighbours.left.isConnectedRight()) {
+                } else if (myNeighbours.up !== undefined && myNeighbours.up.isConnectedDown() && 
+                    myNeighbours.down !== undefined && myNeighbours.down.isConnectedUp() && 
+                    myNeighbours.left !== undefined && myNeighbours.left.isConnectedRight()) {
                     this.direction = Direction.LeftUpLeftDown;
-                } else if (myNeighbours.left.isConnectedRight() && myNeighbours.down.isConnectedUp() && myNeighbours.right.isConnectedLeft()) {
+                } else if (myNeighbours.left !== undefined && myNeighbours.left.isConnectedRight() && 
+                    myNeighbours.down !== undefined && myNeighbours.down.isConnectedUp() && 
+                    myNeighbours.right !== undefined && myNeighbours.right.isConnectedLeft()) {
                     this.direction = Direction.RightDownLeftDown;
-                } else if (myNeighbours.up.isConnectedDown() && myNeighbours.left.isConnectedRight() && myNeighbours.right.isConnectedLeft()) {
+                } else if (myNeighbours.up !== undefined && myNeighbours.up.isConnectedDown() && 
+                    myNeighbours.left !== undefined && myNeighbours.left.isConnectedRight() && 
+                    myNeighbours.right !== undefined && myNeighbours.right.isConnectedLeft()) {
                     this.direction = Direction.LeftUpRightUp;
                 } else {
                     return false;

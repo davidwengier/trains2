@@ -7,7 +7,8 @@
 /// <reference path="track.ts" />
 /// <reference path="play.loop.game.ts" />
 /// <reference path="play.loop.render.ts" />
-/// <reference path="audio.ts" />
+/// <reference path="sound/Player.ts" />
+/// <reference path="sound/SoundLibrary.ts" />
 /// <reference path="particle/types/SmokeParticle.ts" />
 /// <reference path="sprite/TrackSpriteCollection.ts" />
 
@@ -51,8 +52,7 @@ module trains.play {
         private trainIDCounter = 0;
         public trains = new Array<trains.play.Train>();
         public smokeParticleSystem = new Array<SmokeParticle>();
-        public selectedTrain: trains.play.Train;
-        private gameRunningState = true;
+        public selectedTrain: trains.play.Train | undefined;
         private player: trains.audio.Player;
 
         public gameLoop: trains.play.GameLoop;
@@ -62,22 +62,34 @@ module trains.play {
         public cheat_alwaysNight = false;
         private trainRenderer:TrainRenderer;
         private trackSpriteCollection:TrackSpriteCollection;
+
+        private get2dContextFromCanvas(canvas: HTMLCanvasElement)
+        {
+            var context = canvas.getContext("2d");
+
+            if(context === null)
+            {
+                throw "Unable to get 2d context from canvas"
+            }
+
+            return context;
+        }
         
         constructor(public playComponents: trains.play.PlayComponents) {
 
             this.$window = $(window);
 
             this.trainCanvas = <HTMLCanvasElement>this.playComponents.$trainCanvas.get(0);
-            this.trainContext = this.trainCanvas.getContext("2d");
+            this.trainContext = this.get2dContextFromCanvas(this.trainCanvas);
 
             this.trackCanvas = <HTMLCanvasElement>this.playComponents.$trackCanvas.get(0);
-            this.trackContext = this.trackCanvas.getContext("2d");
+            this.trackContext = this.get2dContextFromCanvas(this.trackCanvas);
 
             this.gridCanvas = <HTMLCanvasElement>this.playComponents.$gridCanvas.get(0);
-            this.gridContext = this.gridCanvas.getContext("2d");
+            this.gridContext = this.get2dContextFromCanvas(this.gridCanvas);
             
             this.trainLogoCanvas = <HTMLCanvasElement>this.playComponents.$trainLogoCanvas.get(0);
-            this.trainLogoContext = this.trainLogoCanvas.getContext("2d");
+            this.trainLogoContext = this.get2dContextFromCanvas(this.trainLogoCanvas);
             
             this.playComponents.$trainLogoCanvas.attr('width', gridSize);
             this.playComponents.$trainLogoCanvas.attr('height', gridSize);
@@ -117,7 +129,7 @@ module trains.play {
             this.lightingBufferCanvas = <HTMLCanvasElement>document.createElement('canvas');
             this.lightingBufferCanvas.width = this.canvasWidth;
             this.lightingBufferCanvas.height = this.canvasHeight;
-            this.lightingBufferContext = this.lightingBufferCanvas.getContext("2d");
+            this.lightingBufferContext = this.get2dContextFromCanvas(this.lightingBufferCanvas);
             
             this.gameLoop = new GameLoop(this);
             this.renderLoop = new RenderLoop(this);
@@ -126,8 +138,8 @@ module trains.play {
             this.renderLoop.startLoop();
             this.player = new trains.audio.Player();
             
-            this.setMuted(util.toBoolean(localStorage.getItem("muted")));
-            this.setAutoSave(util.toBoolean(localStorage.getItem("autosave")));
+            this.setMuted(util.toBoolean(localStorage.getItem("muted") || "false"));
+            this.setAutoSave(util.toBoolean(localStorage.getItem("autosave") || "false"));
             
             setTimeout(() => {
                 this.setTool(trains.play.Tool.Track);
@@ -135,7 +147,7 @@ module trains.play {
         }
         
         public loadCells(): void {
-            var savedCells = JSON.parse(localStorage.getItem("cells"));
+            var savedCells = JSON.parse(localStorage.getItem("cells") || "");
             if (savedCells !== undefined) {
                 for (var id in savedCells) {
                     if (savedCells.hasOwnProperty(id)) {
@@ -151,14 +163,6 @@ module trains.play {
             this.redraw();
         }
 
-        public startGame(): void {
-            this.gameRunningState = true;
-        }
-
-        public stopGame(): void {
-            this.gameRunningState = false;
-        }
-
         redraw(): void {
             trains.play.BoardRenderer.redrawCells(this.cells, this.trackContext, this.canvasWidth, this.canvasHeight);
         }
@@ -170,11 +174,6 @@ module trains.play {
                 var cursorName;
                 var hotspot = 'bottom left';
                 switch (tool) {
-                    case trains.play.Tool.Pointer: {
-                        cursorName = "hand-pointer-o";
-                        hotspot = 'top left';
-                        break;
-                    }
                     case trains.play.Tool.Track: {
                         cursorName = "pencil";
                         break;
@@ -191,6 +190,12 @@ module trains.play {
                     case trains.play.Tool.Rotate: {
                         cursorName = "refresh";
                         hotspot = 'center';
+                        break;
+                    }
+                    case trains.play.Tool.Pointer: 
+                    default: {
+                        cursorName = "hand-pointer-o";
+                        hotspot = 'top left';
                         break;
                     }
                 }
@@ -305,7 +310,7 @@ module trains.play {
             var cellID = this.getCellID(column, row);
 
             if (this.cells[cellID] === undefined) {
-                this.player.playSound(trains.audio.Sound.click);
+                this.player.playSound(trains.audio.SoundLibrary.ClickSound);
                 var newCell = new trains.play.Track(cellID, column, row, trains.play.gridSize, this.trackSpriteCollection);
 
                 this.cells[newCell.id] = newCell;
@@ -341,7 +346,7 @@ module trains.play {
         }
         
         public saveCells(): void {
-            if (util.toBoolean(localStorage.getItem("autosave"))) {
+            if (util.toBoolean(localStorage.getItem("autosave") || "false")) {
                 localStorage.setItem("cells", JSON.stringify(this.cells));
             }
         }
@@ -363,14 +368,6 @@ module trains.play {
                 this.saveCells();
             }
         }
-        
-        showChooChoo(): void {
-            this.startGame();
-        }
-        
-        stopChooChoo(): void {
-            this.stopGame();
-        }
 
         private roundToNearestGridSize(value: number): number {
             return Math.floor(value / gridSize) * gridSize;
@@ -389,10 +386,10 @@ module trains.play {
         }
 
         getNeighbouringCells(column: number, row: number, includeHappyNeighbours: boolean = false): trains.play.NeighbouringCells {
-            var up = this.cells[this.getCellID(column, row - 1)];
-            var right = this.cells[this.getCellID(column + 1, row)];
-            var down = this.cells[this.getCellID(column, row + 1)];
-            var left = this.cells[this.getCellID(column - 1, row)];
+            var up: Cell|undefined = this.cells[this.getCellID(column, row - 1)];
+            var right: Cell|undefined = this.cells[this.getCellID(column + 1, row)];
+            var down: Cell|undefined = this.cells[this.getCellID(column, row + 1)];
+            var left: Cell|undefined = this.cells[this.getCellID(column - 1, row)];
 
             // if any of the neighbours are happy, and not happy with us, then we need to ignore them
             if (!includeHappyNeighbours) {
@@ -402,8 +399,12 @@ module trains.play {
                 if (left !== undefined && left.happy && !left.isConnectedRight()) left = undefined;
             }
             
-            var all = [up, right, down, left].filter(n => n !== undefined);
-            
+            var all: Array<trains.play.Cell> = [];
+            if(up !== undefined) all.push(up);
+            if(right !== undefined) all.push(right);
+            if(down !== undefined) all.push(down);
+            if(left !== undefined) all.push(left);
+              
             return {
                 up: up,
                 right: right,
@@ -549,10 +550,10 @@ module trains.play {
     }
 
     export interface NeighbouringCells {
-        up: trains.play.Cell;
-        right: trains.play.Cell;
-        down: trains.play.Cell;
-        left: trains.play.Cell;
+        up: trains.play.Cell | undefined;
+        right: trains.play.Cell | undefined;
+        down: trains.play.Cell | undefined;
+        left: trains.play.Cell | undefined;
         all: Array<trains.play.Cell>;
     }
 
