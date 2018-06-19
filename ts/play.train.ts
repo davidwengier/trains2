@@ -55,15 +55,10 @@ module trains.play {
             }
         }
 
-        private GenerateSpawnCoords(cell:Cell, gridSize:number):TrainCoords
-        {
+        private GenerateSpawnCoords(cell: Cell, gridSize: number): TrainCoords {
             if (cell.direction === undefined) throw "Cell needs direction to generate"
 
             var halfGridSize = gridSize / 2;
-            var moveRightX = cell.x + gridSize;
-            var moveLeftX = cell.x;
-            var moveUpY = cell.y;
-            var moveDownY = cell.y + gridSize;
 
             var cx = cell.x + halfGridSize;
             var cy = cell.y + halfGridSize;
@@ -73,27 +68,27 @@ module trains.play {
                 case (trains.play.Direction.Cross):
                 case (trains.play.Direction.RightDown):
                 case (trains.play.Direction.RightDownRightUp):
-                    cx = moveRightX;
+                    cx = cell.x + gridSize; // Train pointing to the right
                     break;
                 case (trains.play.Direction.Vertical):
                 case (trains.play.Direction.LeftDown):
                 case (trains.play.Direction.RightDownLeftDown):
-                    cy = moveDownY;
+                    cy = cell.y + gridSize; // Train pointing down
                     break;
                 case (trains.play.Direction.LeftUp):
                 case (trains.play.Direction.LeftUpLeftDown):
-                    cx = moveLeftX;
+                    cx = cell.x; // Train pointing left
                     break;
                 case (trains.play.Direction.RightUp):
                 case (trains.play.Direction.LeftUpRightUp):
-                    cy = moveUpY;
+                    cy = cell.y; // Train pointing up
             }
 
             return {
                 currentX: cx,
                 currentY: cy,
-                previousX: ((cell.x + halfGridSize) + 9*cx)/10,
-                previousY: ((cell.y + halfGridSize) + 9*cy)/10
+                previousX: ((cell.x + halfGridSize) + 9 * cx) / 10, // Normalise position from middle towards target position
+                previousY: ((cell.y + halfGridSize) + 9 * cy) / 10
             };
         }
 
