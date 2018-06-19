@@ -8,6 +8,8 @@ module trains.play {
 
     export function InitialisePlay($container: JQuery): void {
         var manager = new trains.play.PlayManager($container);
+
+        manager.Start();
     }
 
     export var GameBoard: Board;
@@ -33,7 +35,9 @@ module trains.play {
                 handle: '.ui-handle',
                 containment: 'body'
             });
+        }
 
+        public Start(): void {
             this.AttachEvents();
 
             GameBoard.loadCells();
