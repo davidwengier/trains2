@@ -1,3 +1,4 @@
+"use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
         ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -17,13 +18,14 @@ var trains;
                 this.id = id;
                 this.column = column;
                 this.row = row;
+                this.switchState = false;
                 this.happy = false;
                 this.x = this.column * cellSize;
                 this.y = this.row * cellSize;
                 this.cellSize = cellSize;
                 this.direction = trains.play.Direction.None;
             }
-            Cell.prototype.draw = function (context) {
+            Cell.prototype.draw = function (_) {
                 throw new Error("This method is abstract.. no really.. come on.. just pretend! It will be fun I promise.");
             };
             Cell.prototype.clear = function (context) {
@@ -48,13 +50,13 @@ var trains;
                     var myNeighbours = play.GameBoard.getNeighbouringCells(c.column, c.row, true);
                     if (myNeighbours.all.length < 4)
                         return false;
-                    if (!myNeighbours.up.isConnectedDown() && myNeighbours.up.happy)
+                    if (myNeighbours.up !== undefined && !myNeighbours.up.isConnectedDown() && myNeighbours.up.happy)
                         return false;
-                    if (!myNeighbours.down.isConnectedUp() && myNeighbours.down.happy)
+                    if (myNeighbours.down !== undefined && !myNeighbours.down.isConnectedUp() && myNeighbours.down.happy)
                         return false;
-                    if (!myNeighbours.left.isConnectedRight() && myNeighbours.left.happy)
+                    if (myNeighbours.left !== undefined && !myNeighbours.left.isConnectedRight() && myNeighbours.left.happy)
                         return false;
-                    if (!myNeighbours.right.isConnectedLeft() && myNeighbours.right.happy)
+                    if (myNeighbours.right !== undefined && !myNeighbours.right.isConnectedLeft() && myNeighbours.right.happy)
                         return false;
                     c.direction = play.Direction.Cross;
                     c.happy = true;
@@ -94,16 +96,24 @@ var trains;
                     }
                 }
                 else {
-                    if (myNeighbours.up.isConnectedDown() && myNeighbours.down.isConnectedUp() && myNeighbours.right.isConnectedLeft()) {
+                    if (myNeighbours.up !== undefined && myNeighbours.up.isConnectedDown() &&
+                        myNeighbours.down !== undefined && myNeighbours.down.isConnectedUp() &&
+                        myNeighbours.right !== undefined && myNeighbours.right.isConnectedLeft()) {
                         this.direction = play.Direction.RightDownRightUp;
                     }
-                    else if (myNeighbours.up.isConnectedDown() && myNeighbours.down.isConnectedUp() && myNeighbours.left.isConnectedRight()) {
+                    else if (myNeighbours.up !== undefined && myNeighbours.up.isConnectedDown() &&
+                        myNeighbours.down !== undefined && myNeighbours.down.isConnectedUp() &&
+                        myNeighbours.left !== undefined && myNeighbours.left.isConnectedRight()) {
                         this.direction = play.Direction.LeftUpLeftDown;
                     }
-                    else if (myNeighbours.left.isConnectedRight() && myNeighbours.down.isConnectedUp() && myNeighbours.right.isConnectedLeft()) {
+                    else if (myNeighbours.left !== undefined && myNeighbours.left.isConnectedRight() &&
+                        myNeighbours.down !== undefined && myNeighbours.down.isConnectedUp() &&
+                        myNeighbours.right !== undefined && myNeighbours.right.isConnectedLeft()) {
                         this.direction = play.Direction.RightDownLeftDown;
                     }
-                    else if (myNeighbours.up.isConnectedDown() && myNeighbours.left.isConnectedRight() && myNeighbours.right.isConnectedLeft()) {
+                    else if (myNeighbours.up !== undefined && myNeighbours.up.isConnectedDown() &&
+                        myNeighbours.left !== undefined && myNeighbours.left.isConnectedRight() &&
+                        myNeighbours.right !== undefined && myNeighbours.right.isConnectedLeft()) {
                         this.direction = play.Direction.LeftUpRightUp;
                     }
                     else {
@@ -675,7 +685,7 @@ var trains;
             ParticleBase.prototype.IsDead = function () {
                 return (this.life >= this.lifetime);
             };
-            ParticleBase.prototype.Draw = function (context) {
+            ParticleBase.prototype.Draw = function (_) {
                 throw new Error("abstract, not the art kind, but the extends kind");
             };
             ParticleBase.prototype.GetFillStyleAlpha = function () {
@@ -724,32 +734,33 @@ var trains;
     var play;
     (function (play) {
         var Train = (function () {
-            function Train(id, cell, renderer) {
+            function Train(id, coords, renderer, trainColourIndex, name) {
                 this.id = id;
-                this.defaultSpeed = 2;
+                this.coords = coords;
+                this.trainColourIndex = trainColourIndex;
+                this.name = name;
+                this.isPaused = false;
+                this.trainSpeed = 2;
                 this.imageReverse = 1;
                 this.carriagePadding = 2;
                 this.nextSmoke = 0;
                 this.Renderer = renderer;
-                this.setTrainSpeed(this.defaultSpeed);
-                if (cell !== undefined) {
-                    this.coords = this.GenerateSpawnCoords(cell, trains.play.gridSize);
-                    if (Math.floor(Math.random() * 10) === 0) {
-                        this.trainColourIndex = -1;
-                    }
-                    else {
-                        this.trainColourIndex = this.Renderer.GetRandomShaftColour();
-                    }
-                    this.name = trains.util.getRandomName();
-                    if (Math.random() < 0.7) {
-                        this.spawnCarriage(Math.ceil(Math.random() * 5));
-                    }
-                    if (Math.random() < 0.7) {
-                        this.setTrainSpeed(Math.ceil(Math.random() * 5));
-                    }
-                }
+                this.setTrainSpeed(this.trainSpeed);
             }
-            Train.prototype.GenerateSpawnCoords = function (cell, gridSize) {
+            Train.SpawnNewTrain = function (id, cell, renderer) {
+                var coords = this.GenerateSpawnCoords(cell, trains.play.gridSize);
+                var trainColourIndex = Math.floor(Math.random() * 10) === 0 ? -1 : renderer.GetRandomShaftColour();
+                var trainName = trains.util.getRandomName();
+                var train = new Train(id, coords, renderer, trainColourIndex, trainName);
+                if (Math.random() < 0.7) {
+                    train.spawnCarriage(Math.ceil(Math.random() * 5));
+                }
+                if (Math.random() < 0.7) {
+                    train.setTrainSpeed(Math.ceil(Math.random() * 5));
+                }
+                return train;
+            };
+            Train.GenerateSpawnCoords = function (cell, gridSize) {
                 if (cell.direction === undefined)
                     throw "Cell needs direction to generate";
                 var halfGridSize = gridSize / 2;
@@ -794,14 +805,14 @@ var trains;
                         previousX: this.coords.currentX + (-10 * this.magicBullshitCompareTo(this.coords.currentX, this.coords.previousX)),
                         previousY: this.coords.currentY + (-10 * this.magicBullshitCompareTo(this.coords.currentY, this.coords.previousY))
                     };
-                    if (play.GameBoard.getCell(play.GameBoard.getGridCoord(coords.currentX), play.GameBoard.getGridCoord(coords.currentY)) === undefined)
+                    var stagedCarriage = new TrainCarriage(-1, coords, this.Renderer, this.trainColourIndex);
+                    stagedCarriage.chooChooMotherFucker(this.carriagePadding + (trains.play.gridSize / 2), false);
+                    stagedCarriage.coords.previousX = stagedCarriage.coords.currentX + (-10 * this.magicBullshitCompareTo(stagedCarriage.coords.currentX, stagedCarriage.coords.previousX));
+                    stagedCarriage.coords.previousY = stagedCarriage.coords.currentY + (-10 * this.magicBullshitCompareTo(stagedCarriage.coords.currentY, stagedCarriage.coords.previousY));
+                    if (play.GameBoard.getCell(play.GameBoard.getGridCoord(stagedCarriage.coords.currentX), play.GameBoard.getGridCoord(stagedCarriage.coords.currentY)) === undefined) {
                         return;
-                    this.carriage = new TrainCarriage(-1, undefined, this.Renderer);
-                    this.carriage.coords = coords;
-                    this.carriage.trainColourIndex = this.trainColourIndex;
-                    this.carriage.chooChooMotherFucker(this.carriagePadding + (trains.play.gridSize / 2), false);
-                    this.carriage.coords.previousX = this.carriage.coords.currentX + (-10 * this.magicBullshitCompareTo(this.carriage.coords.currentX, this.carriage.coords.previousX));
-                    this.carriage.coords.previousY = this.carriage.coords.currentY + (-10 * this.magicBullshitCompareTo(this.carriage.coords.currentY, this.carriage.coords.previousY));
+                    }
+                    this.carriage = stagedCarriage;
                     if ((--count) > 0) {
                         this.carriage.spawnCarriage(count);
                     }
@@ -910,9 +921,12 @@ var trains;
                 };
             };
             Train.prototype.getNewCoordsForTrain = function (cell, coords, speed) {
-                if (this.lastCell !== cell) {
+                if (this.lastCell == undefined || this.lastCell !== cell) {
                     this.directionToUse = cell.getDirectionToUse(this.lastCell);
                     this.lastCell = cell;
+                }
+                if (this.directionToUse === undefined) {
+                    throw new Error("Direction to use was undefined, was a last cell set?");
                 }
                 if (this.directionToUse === trains.play.Direction.Vertical) {
                     return this.straightTrackCalculate(cell, coords, speed);
@@ -1015,6 +1029,8 @@ var trains;
                 }
             };
             Train.prototype.drawLink = function (context) {
+                if (this.carriage === undefined)
+                    return;
                 var sp1 = (trains.play.gridSize / 2) / Math.sqrt(Math.pow(this.coords.currentX - this.coords.previousX, 2) + Math.pow(this.coords.currentY - this.coords.previousY, 2));
                 var x1 = this.coords.currentX - ((this.coords.currentX - this.coords.previousX) * sp1 * this.imageReverse);
                 var y1 = this.coords.currentY - ((this.coords.currentY - this.coords.previousY) * sp1 * this.imageReverse);
@@ -1030,7 +1046,7 @@ var trains;
                 context.stroke();
                 context.restore();
             };
-            Train.prototype.willNotHaveAFunTimeAt = function (coords) {
+            Train.prototype.willNotHaveAFunTimeAt = function (_) {
                 var _this = this;
                 var frontCoords = this.getFrontOfTrain(10);
                 var myColumn = play.GameBoard.getGridCoord(frontCoords.currentX);
@@ -1067,10 +1083,8 @@ var trains;
         play.Train = Train;
         var TrainCarriage = (function (_super) {
             __extends(TrainCarriage, _super);
-            function TrainCarriage(id, cell, renderer) {
-                var _this = _super.call(this, id, cell, renderer) || this;
-                _this.id = id;
-                return _this;
+            function TrainCarriage(id, coords, renderer, trainColourIndex) {
+                return _super.call(this, id, coords, renderer, trainColourIndex, "carriage") || this;
             }
             TrainCarriage.prototype.draw = function (context, translate) {
                 if (translate === void 0) { translate = true; }
@@ -1092,7 +1106,7 @@ var trains;
                     this.drawLink(context);
                 }
             };
-            TrainCarriage.prototype.drawLighting = function (context) {
+            TrainCarriage.prototype.drawLighting = function (_) {
             };
             return TrainCarriage;
         }(Train));
@@ -1105,11 +1119,17 @@ var trains;
     (function (play) {
         var Sprite = (function () {
             function Sprite(width, height) {
+                this.width = width;
+                this.height = height;
                 this.restored = false;
                 this.canvas = document.createElement("canvas");
-                this.canvas.width = width;
-                this.canvas.height = height;
-                this.context = this.canvas.getContext("2d");
+                this.canvas.width = this.width + 1;
+                this.canvas.height = this.height + 1;
+                var context = this.canvas.getContext("2d");
+                if (context === null) {
+                    throw "Unable to get 2d context from canvas";
+                }
+                this.context = context;
                 this.context.save();
                 this.context.translate(0.5, 0.5);
             }
@@ -1118,7 +1138,7 @@ var trains;
                     this.context.restore();
                     this.restored = true;
                 }
-                context.drawImage(this.canvas, x - 0.5, y - 0.5);
+                context.drawImage(this.canvas, 0, 0, this.width, this.height, x - 0.5, y - 0.5, this.width, this.height);
             };
             return Sprite;
         }());
@@ -1155,39 +1175,36 @@ var trains;
             }
             CurvedTrackSprite.prototype.drawCurvedTrack = function (context, drawPlanks, trackWidth) {
                 if (drawPlanks) {
-                    this.drawCurvedPlank(context, 20 * Math.PI / 180, trackWidth);
-                    this.drawCurvedPlank(context, 45 * Math.PI / 180, trackWidth);
-                    this.drawCurvedPlank(context, 70 * Math.PI / 180, trackWidth);
+                    context.lineWidth = trackWidth;
+                    context.strokeStyle = this.plankColour;
+                    context.beginPath();
+                    this.drawCurvedPlankPath(context, 20 * Math.PI / 180, trackWidth);
+                    this.drawCurvedPlankPath(context, 45 * Math.PI / 180, trackWidth);
+                    this.drawCurvedPlankPath(context, 70 * Math.PI / 180, trackWidth);
+                    context.stroke();
                 }
                 context.lineWidth = 1;
                 context.strokeStyle = this.trackColour;
                 var finishAngle = Math.PI / 2;
                 context.beginPath();
                 context.arc(0, 0, play.firstTrackPosY, 0, finishAngle, false);
-                context.stroke();
-                context.beginPath();
+                context.moveTo(play.firstTrackPosY + trackWidth, 0);
                 context.arc(0, 0, play.firstTrackPosY + trackWidth, 0, finishAngle, false);
-                context.stroke();
-                context.beginPath();
+                context.moveTo(play.secondTrackPosY - trackWidth, 0);
                 context.arc(0, 0, play.secondTrackPosY - trackWidth, 0, finishAngle, false);
-                context.stroke();
-                context.beginPath();
+                context.moveTo(play.secondTrackPosY, 0);
                 context.arc(0, 0, play.secondTrackPosY, 0, finishAngle, false);
                 context.stroke();
             };
-            CurvedTrackSprite.prototype.drawCurvedPlank = function (context, basePos, trackWidth) {
+            CurvedTrackSprite.prototype.drawCurvedPlankPath = function (context, basePos, trackWidth) {
                 var cos = Math.cos(basePos);
                 var sin = Math.sin(basePos);
-                context.lineWidth = trackWidth;
-                context.strokeStyle = this.plankColour;
-                context.beginPath();
                 context.moveTo((play.firstTrackPosY - trackWidth) * cos, (play.firstTrackPosY - trackWidth) * sin);
                 context.lineTo((play.firstTrackPosY) * cos, (play.firstTrackPosY) * sin);
                 context.moveTo((play.firstTrackPosY + trackWidth) * cos, (play.firstTrackPosY + trackWidth) * sin);
                 context.lineTo((play.secondTrackPosY - trackWidth) * cos, (play.secondTrackPosY - trackWidth) * sin);
                 context.moveTo((play.secondTrackPosY) * cos, (play.secondTrackPosY) * sin);
                 context.lineTo((play.secondTrackPosY + trackWidth) * cos, (play.secondTrackPosY + trackWidth) * sin);
-                context.stroke();
             };
             return CurvedTrackSprite;
         }(play.BaseTrackSprite));
@@ -1204,7 +1221,7 @@ var trains;
                 if (terminator === void 0) { terminator = false; }
                 var _this = _super.call(this, cellSize) || this;
                 var numPlanks = 3;
-                var startX = 0;
+                var startX = -1;
                 var endX = cellSize;
                 var thirdGridSize = cellSize / 3;
                 _this.context.lineWidth = trackWidth;
@@ -1412,17 +1429,21 @@ var trains;
     var play;
     (function (play) {
         var Loop = (function () {
-            function Loop() {
-                this.targetLoopsPerSecond = 1;
-                this.minimumTimeout = 10;
+            function Loop(targetLoopsPerSecond, minimumTimeout) {
+                if (minimumTimeout === void 0) { minimumTimeout = 10; }
+                this.targetLoopsPerSecond = targetLoopsPerSecond;
+                this.minimumTimeout = minimumTimeout;
                 this.loopRunning = false;
                 this.lastDuration = 0;
                 this.lastStartTime = 0;
+                this.loopStartTime = -1;
+                this.lastLoopEndTime = -1;
                 this.averageLoopsPerSecond = 1;
                 this.averageLoopsPerSecondSampleSize = 5;
+                this.timeoutId = -1;
             }
             Loop.prototype.startLoop = function () {
-                if (this.timeoutId === undefined) {
+                if (this.timeoutId < 0) {
                     this.loopCallback();
                 }
                 this.loopRunning = true;
@@ -1431,19 +1452,28 @@ var trains;
                 this.loopRunning = false;
             };
             Loop.prototype.dispose = function () {
-                if (this.timeoutId === undefined) {
+                if (this.timeoutId !== undefined && this.timeoutId > 0) {
                     try {
                         clearTimeout(this.timeoutId);
                     }
                     finally {
-                        this.timeoutId = undefined;
+                        this.timeoutId = -1;
                     }
                 }
             };
+            Loop.prototype.ElapsedSinceLastStart = function () {
+                return this.loopStartTime - this.lastStartTime;
+            };
+            Loop.prototype.ElapsedSinceLastEnd = function () {
+                return this.loopStartTime - this.lastLoopEndTime;
+            };
+            Loop.prototype.GetPerformanceString = function () {
+                return this.lastDuration.toFixed(2) + "ms (" + this.averageLoopsPerSecond.toFixed(2) + "/s)";
+            };
             Loop.prototype.loopCallback = function () {
                 var _this = this;
-                this.timeoutId = undefined;
-                if (this.lastLoopEndTime !== undefined) {
+                this.timeoutId = -1;
+                if (this.lastLoopEndTime > 0) {
                     this.loopStartTime = new Date().getTime();
                     if (this.lastStartTime === 0) {
                         this.lastStartTime = this.loopStartTime;
@@ -1452,7 +1482,7 @@ var trains;
                         this.loopBody();
                     }
                     this.lastDuration = new Date().getTime() - this.loopStartTime;
-                    if (this.lastStartTime !== undefined) {
+                    if (this.lastStartTime > 0) {
                         this.averageLoopsPerSecond = ((this.averageLoopsPerSecond * (this.averageLoopsPerSecondSampleSize - 1)) + (this.loopStartTime - this.lastStartTime)) / this.averageLoopsPerSecondSampleSize;
                     }
                     this.lastStartTime = this.loopStartTime;
@@ -1475,15 +1505,14 @@ var trains;
         var GameLoop = (function (_super) {
             __extends(GameLoop, _super);
             function GameLoop(board) {
-                var _this = _super.call(this) || this;
+                var _this = _super.call(this, 40) || this;
                 _this.board = board;
                 _this.gameTimeElapsed = 0;
-                _this.targetLoopsPerSecond = 40;
                 return _this;
             }
             GameLoop.prototype.loopBody = function () {
-                this.gameTimeElapsed += this.loopStartTime - this.lastStartTime;
-                var steps = ((this.loopStartTime - this.lastLoopEndTime) / 25);
+                this.gameTimeElapsed += this.ElapsedSinceLastStart();
+                var steps = this.ElapsedSinceLastEnd() / 25;
                 if (this.board.trains.length > 0) {
                     this.board.trains.forEach(function (t) { return t.chooChooMotherFucker(steps); });
                 }
@@ -1511,12 +1540,11 @@ var trains;
         var RenderLoop = (function (_super) {
             __extends(RenderLoop, _super);
             function RenderLoop(board) {
-                var _this = _super.call(this) || this;
+                var _this = _super.call(this, 30) || this;
                 _this.board = board;
                 _this.msPerDayCycle = 240;
                 _this.dayCycleSpeedModifier = 0.6;
                 _this.dayToNightRatio = 5 / 12;
-                _this.targetLoopsPerSecond = 30;
                 return _this;
             }
             RenderLoop.prototype.loopBody = function () {
@@ -1569,8 +1597,8 @@ var trains;
             };
             RenderLoop.prototype.drawDiagnostics = function (targetContext) {
                 targetContext.font = "10px Verdana";
-                targetContext.fillText("To render: " + (this.lastDuration.toFixed(2)) + "ms (" + (this.averageLoopsPerSecond.toFixed(2)) + "/s)", 10, 10);
-                targetContext.fillText("To logic: " + (this.board.gameLoop.lastDuration.toFixed(2)) + "ms (" + (this.board.gameLoop.averageLoopsPerSecond.toFixed(2)) + "/s)", 10, 24);
+                targetContext.fillText("To render: " + this.GetPerformanceString(), 10, 10);
+                targetContext.fillText("To logic: " + this.board.gameLoop.GetPerformanceString(), 10, 24);
                 if (this.board.trains.length > 0) {
                     targetContext.fillText("Train Count: " + (this.board.trains.length), 10, 38);
                 }
@@ -1593,29 +1621,31 @@ var trains;
                 this.muted = mute;
             };
             Player.prototype.playSound = function (sound) {
-                if (!this.muted) {
-                    var fileName;
-                    switch (sound) {
-                        case trains.audio.Sound.click: {
-                            fileName = "click.mp3";
-                            break;
-                        }
-                    }
-                    if (fileName !== undefined) {
-                        var soundToPlay = new Audio(this.basePath + fileName);
-                        if (soundToPlay !== undefined) {
-                            soundToPlay.play();
-                        }
+                if (!this.muted && sound !== undefined) {
+                    var soundToPlay = new Audio(this.basePath + sound.FileName);
+                    if (soundToPlay !== undefined) {
+                        soundToPlay.play();
                     }
                 }
             };
             return Player;
         }());
         audio.Player = Player;
-        var Sound;
-        (function (Sound) {
-            Sound[Sound["click"] = 0] = "click";
-        })(Sound = audio.Sound || (audio.Sound = {}));
+    })(audio = trains.audio || (trains.audio = {}));
+})(trains || (trains = {}));
+var trains;
+(function (trains) {
+    var audio;
+    (function (audio) {
+        var SoundLibrary = (function () {
+            function SoundLibrary() {
+            }
+            SoundLibrary.ClickSound = {
+                FileName: "click.mp3"
+            };
+            return SoundLibrary;
+        }());
+        audio.SoundLibrary = SoundLibrary;
     })(audio = trains.audio || (trains.audio = {}));
 })(trains || (trains = {}));
 var trains;
@@ -1634,21 +1664,21 @@ var trains;
                 var _this = this;
                 this.playComponents = playComponents;
                 this.cells = {};
+                this.tool = trains.play.Tool.Pointer;
                 this.trainIDCounter = 0;
                 this.trains = new Array();
                 this.smokeParticleSystem = new Array();
-                this.gameRunningState = true;
                 this.showDiagnostics = false;
                 this.cheat_alwaysNight = false;
                 this.$window = $(window);
                 this.trainCanvas = this.playComponents.$trainCanvas.get(0);
-                this.trainContext = this.trainCanvas.getContext("2d");
+                this.trainContext = this.get2dContextFromCanvas(this.trainCanvas);
                 this.trackCanvas = this.playComponents.$trackCanvas.get(0);
-                this.trackContext = this.trackCanvas.getContext("2d");
+                this.trackContext = this.get2dContextFromCanvas(this.trackCanvas);
                 this.gridCanvas = this.playComponents.$gridCanvas.get(0);
-                this.gridContext = this.gridCanvas.getContext("2d");
+                this.gridContext = this.get2dContextFromCanvas(this.gridCanvas);
                 this.trainLogoCanvas = this.playComponents.$trainLogoCanvas.get(0);
-                this.trainLogoContext = this.trainLogoCanvas.getContext("2d");
+                this.trainLogoContext = this.get2dContextFromCanvas(this.trainLogoCanvas);
                 this.playComponents.$trainLogoCanvas.attr('width', play.gridSize);
                 this.playComponents.$trainLogoCanvas.attr('height', play.gridSize);
                 this.playComponents.$trainLogoCanvas.width(play.gridSize);
@@ -1665,7 +1695,7 @@ var trains;
                 [this.trackCanvas, this.trainCanvas].forEach(function (el) {
                     el.addEventListener('click', function (event) { return _this.cellClick(event); });
                     el.addEventListener('mousemove', function (event) { return _this.cellMoveOver(event); });
-                    el.addEventListener('touchstart', function (event) { return false; });
+                    el.addEventListener('touchstart', function (_) { return false; });
                     el.addEventListener('touchmove', function (event) {
                         _this.cellTouch(event);
                         event.preventDefault();
@@ -1682,21 +1712,28 @@ var trains;
                 this.lightingBufferCanvas = document.createElement('canvas');
                 this.lightingBufferCanvas.width = this.canvasWidth;
                 this.lightingBufferCanvas.height = this.canvasHeight;
-                this.lightingBufferContext = this.lightingBufferCanvas.getContext("2d");
+                this.lightingBufferContext = this.get2dContextFromCanvas(this.lightingBufferCanvas);
                 this.gameLoop = new play.GameLoop(this);
                 this.renderLoop = new play.RenderLoop(this);
                 trains.play.BoardRenderer.drawGrid(this.gridContext, this.canvasWidth, this.canvasHeight);
                 this.gameLoop.startLoop();
                 this.renderLoop.startLoop();
                 this.player = new trains.audio.Player();
-                this.setMuted(trains.util.toBoolean(localStorage.getItem("muted")));
-                this.setAutoSave(trains.util.toBoolean(localStorage.getItem("autosave")));
+                this.setMuted(trains.util.toBoolean(localStorage.getItem("muted") || "false"));
+                this.setAutoSave(trains.util.toBoolean(localStorage.getItem("autosave") || "false"));
                 setTimeout(function () {
                     _this.setTool(trains.play.Tool.Track);
                 }, 100);
             }
+            Board.prototype.get2dContextFromCanvas = function (canvas) {
+                var context = canvas.getContext("2d");
+                if (context === null) {
+                    throw "Unable to get 2d context from canvas";
+                }
+                return context;
+            };
             Board.prototype.loadCells = function () {
-                var savedCells = JSON.parse(localStorage.getItem("cells"));
+                var savedCells = JSON.parse(localStorage.getItem("cells") || "");
                 if (savedCells !== undefined) {
                     for (var id in savedCells) {
                         if (savedCells.hasOwnProperty(id)) {
@@ -1711,12 +1748,6 @@ var trains;
                 }
                 this.redraw();
             };
-            Board.prototype.startGame = function () {
-                this.gameRunningState = true;
-            };
-            Board.prototype.stopGame = function () {
-                this.gameRunningState = false;
-            };
             Board.prototype.redraw = function () {
                 trains.play.BoardRenderer.redrawCells(this.cells, this.trackContext, this.canvasWidth, this.canvasHeight);
             };
@@ -1726,11 +1757,6 @@ var trains;
                     var cursorName;
                     var hotspot = 'bottom left';
                     switch (tool) {
-                        case trains.play.Tool.Pointer: {
-                            cursorName = "hand-pointer-o";
-                            hotspot = 'top left';
-                            break;
-                        }
                         case trains.play.Tool.Track: {
                             cursorName = "pencil";
                             break;
@@ -1747,6 +1773,12 @@ var trains;
                         case trains.play.Tool.Rotate: {
                             cursorName = "refresh";
                             hotspot = 'center';
+                            break;
+                        }
+                        case trains.play.Tool.Pointer:
+                        default: {
+                            cursorName = "hand-pointer-o";
+                            hotspot = 'top left';
                             break;
                         }
                     }
@@ -1812,7 +1844,7 @@ var trains;
                         {
                             var cellID = this.getCellID(column, row);
                             if (this.cells[cellID] !== undefined) {
-                                var t = new play.Train(this.trainIDCounter++, this.cells[cellID], this.trainRenderer);
+                                var t = play.Train.SpawnNewTrain(this.trainIDCounter++, this.cells[cellID], this.trainRenderer);
                                 t.chooChooMotherFucker(0.1, false);
                                 this.trains.push(t);
                                 this.showTrainControls(t);
@@ -1849,7 +1881,7 @@ var trains;
             Board.prototype.newTrack = function (column, row) {
                 var cellID = this.getCellID(column, row);
                 if (this.cells[cellID] === undefined) {
-                    this.player.playSound(trains.audio.Sound.click);
+                    this.player.playSound(trains.audio.SoundLibrary.ClickSound);
                     var newCell = new trains.play.Track(cellID, column, row, trains.play.gridSize, this.trackSpriteCollection);
                     this.cells[newCell.id] = newCell;
                     if (!newCell.crossTheRoad()) {
@@ -1883,7 +1915,7 @@ var trains;
                 }
             };
             Board.prototype.saveCells = function () {
-                if (trains.util.toBoolean(localStorage.getItem("autosave"))) {
+                if (trains.util.toBoolean(localStorage.getItem("autosave") || "false")) {
                     localStorage.setItem("cells", JSON.stringify(this.cells));
                 }
             };
@@ -1903,12 +1935,6 @@ var trains;
                     }
                     this.saveCells();
                 }
-            };
-            Board.prototype.showChooChoo = function () {
-                this.startGame();
-            };
-            Board.prototype.stopChooChoo = function () {
-                this.stopGame();
             };
             Board.prototype.roundToNearestGridSize = function (value) {
                 return Math.floor(value / play.gridSize) * play.gridSize;
@@ -1938,7 +1964,15 @@ var trains;
                     if (left !== undefined && left.happy && !left.isConnectedRight())
                         left = undefined;
                 }
-                var all = [up, right, down, left].filter(function (n) { return n !== undefined; });
+                var all = [];
+                if (up !== undefined)
+                    all.push(up);
+                if (right !== undefined)
+                    all.push(right);
+                if (down !== undefined)
+                    all.push(down);
+                if (left !== undefined)
+                    all.push(left);
                 return {
                     up: up,
                     right: right,
@@ -2133,11 +2167,11 @@ var trains;
     (function (play) {
         function InitialisePlay($container) {
             var manager = new trains.play.PlayManager($container);
+            manager.Start();
         }
         play.InitialisePlay = InitialisePlay;
         var PlayManager = (function () {
             function PlayManager($container) {
-                this.$container = $container;
                 this.playComponents = GetPlayComponent($container);
                 trains.play.GameBoard = new trains.play.Board(this.playComponents);
                 var top = ($(window).height() - trains.play.GameBoard.canvasHeight) / 2;
@@ -2151,9 +2185,11 @@ var trains;
                     handle: '.ui-handle',
                     containment: 'body'
                 });
+            }
+            PlayManager.prototype.Start = function () {
                 this.AttachEvents();
                 play.GameBoard.loadCells();
-            }
+            };
             PlayManager.prototype.AttachEvents = function () {
                 var _this = this;
                 this.playComponents.$globalButtons.find('.ui-title').click(function () {
@@ -2163,17 +2199,23 @@ var trains;
                     _this.playComponents.$globalButtons.addClass("minimised");
                 });
                 this.playComponents.$globalButtons.find('button').click(function (event) {
-                    trains.play.GameBoard.globalControlClick(event.currentTarget);
+                    if (event.currentTarget !== null) {
+                        trains.play.GameBoard.globalControlClick(event.currentTarget);
+                    }
                 });
                 this.playComponents.$trainButtons.find('.ui-close').click(function () {
                     trains.play.GameBoard.hideTrainControls();
                 });
                 this.playComponents.$trainButtons.find('button').click(function (event) {
-                    trains.play.GameBoard.trainControlClick(event.currentTarget);
+                    if (event.currentTarget !== null) {
+                        trains.play.GameBoard.trainControlClick(event.currentTarget);
+                    }
                 });
                 this.playComponents.$trackButtons.find('button').click(function (event) {
-                    trains.play.GameBoard.trackControlClick(event.currentTarget);
-                    trains.util.selectButton($(event.currentTarget));
+                    if (event.currentTarget !== null) {
+                        trains.play.GameBoard.trackControlClick(event.currentTarget);
+                        trains.util.selectButton($(event.currentTarget));
+                    }
                 });
                 this.playComponents.$mute.click(function () {
                     var $mute = _this.playComponents.$mute;
@@ -2200,7 +2242,7 @@ var trains;
                         trains.play.GameBoard.saveCells();
                     }
                 });
-                trains.event.On("speedchanged", function (event, trainID, speed) {
+                trains.event.On("speedchanged", function (_, trainID, speed) {
                     var setTrainSpeed = false;
                     if (trains.play.GameBoard.selectedTrain !== undefined) {
                         if (trainID === trains.play.GameBoard.selectedTrain.id) {
@@ -2214,7 +2256,7 @@ var trains;
                         _this.DisplayTrainSpeed(speed);
                     }
                 });
-                trains.event.On("showtraincontrols", function (event, train) {
+                trains.event.On("showtraincontrols", function (_, train) {
                     _this.playComponents.$trainName.text(train.name);
                     _this.playComponents.$trainButtons.addClass("flipInX").show();
                     _this.playComponents.$trainButtons.one(trains.play.animationEndEventString, function () {
@@ -2222,7 +2264,7 @@ var trains;
                     });
                     _this.DisplayTrainSpeed(train.getTrainSpeed());
                 });
-                trains.event.On("hidetraincontrols", function (event) {
+                trains.event.On("hidetraincontrols", function (_) {
                     _this.playComponents.$trainButtons.addClass("flipOutX");
                     _this.playComponents.$trainButtons.one(trains.play.animationEndEventString, function () {
                         _this.playComponents.$trainButtons.removeClass("flipOutX").hide();
