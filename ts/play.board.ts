@@ -47,7 +47,7 @@ module trains.play {
         private maxRows: number;
 
         private cells: trains.play.BoardCells = {};
-        private tool: Tool;
+        private tool: Tool = trains.play.Tool.Pointer;
         
         private trainIDCounter = 0;
         public trains = new Array<trains.play.Train>();
