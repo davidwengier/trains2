@@ -1,6 +1,3 @@
-module trains.audio {
-	export interface ISound
-	{
-		FileName:string;
-    }
+export interface ISound {
+FileName: string;
 }

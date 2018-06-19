@@ -1,10 +1,7 @@
-/// <reference path="ISound.ts" />
+import { ISound } from "ISound";
 
-module trains.audio {
-    export class SoundLibrary
-    {
-        public static readonly ClickSound: ISound = {
-            FileName: "click.mp3"
-        };
-    }
+export class SoundLibrary {
+    public static readonly ClickSound: ISound = {
+        FileName: "click.mp3"
+    };
 }

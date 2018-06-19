@@ -1,70 +1,69 @@
-module trains.event {
-	var globalEventID = 1;
-	var globalEvents: trains.event.GlobalEvent = {};
+export class Event {
+    public static globalEventID = 1;
+    public static globalEvents: GlobalEvent = {};
 
-	export function On(eventName: string, callback: (event: trains.event.GlobalEventObject, ...data: any[]) => void): number {
-		var id = globalEventID;
-		globalEventID++;
+    public On(eventName: string, callback: (event: GlobalEventObject, ...data: any[]) => void): number {
+        const id = Event.globalEventID;
+        Event.globalEventID++;
 
-		var existingEvents = globalEvents[eventName];
-		if (existingEvents === undefined) {
-			globalEvents[eventName] = new Array<trains.event.StoredEvent>();
-			existingEvents = globalEvents[eventName];
-		}
+        let existingEvents = Event.globalEvents[eventName];
+        if (existingEvents === undefined) {
+            Event.globalEvents[eventName] = new Array<StoredEvent>();
+            existingEvents = Event.globalEvents[eventName];
+        }
 
-		existingEvents.push({
-			id: id,
-			callback: callback
-		});
+        existingEvents.push({
+            id,
+            callback
+        });
 
-		return id;
-	}
+        return id;
+    }
 
-	export function Emit(eventName: string, ...data: any[]): void {
-		var existingEvents = globalEvents[eventName];
-		if (existingEvents !== undefined) {
+    public Emit(eventName: string, ...data: any[]): void {
+        const existingEvents = Event.globalEvents[eventName];
+        if (existingEvents !== undefined) {
 
-			var eventObject: trains.event.GlobalEventObject = {
-				eventName: eventName,
-				data: data
-			};
+            const eventObject: GlobalEventObject = {
+                eventName,
+                data
+            };
 
-			var callbackData: any[] = [eventObject];
-			for (var i = 0; i < data.length; i++) {
-				callbackData.push(data[i]);
-			}
+            const callbackData: any[] = [eventObject];
+            for (const item of data) {
+                callbackData.push(item);
+            }
 
-			for (var i = 0; i < existingEvents.length; i++) {
-				existingEvents[i].callback.apply(null, callbackData);
-			}
-		}
-	}
+            for (const event of existingEvents) {
+				event.callback.apply(null, callbackData);
+            }
+        }
+    }
 
-	export function Unsubscribe(eventID: number): void {
-		for (var eventName in globalEvents) {
-			if (globalEvents.hasOwnProperty(eventName) && globalEvents[eventName] !== undefined) {
-				for (var i = 0; i < globalEvents[eventName].length; i++) {
-					if (globalEvents[eventName][i].id === eventID) {
-						globalEvents[eventName].splice(i, 1);
-						return;
-					}
-				}
-			}
-		}
-	}
+    public Unsubscribe(eventID: number): void {
+        for (const eventName in Event.globalEvents) {
+            if (Event.globalEvents.hasOwnProperty(eventName) && Event.globalEvents[eventName] !== undefined) {
+                for (let i = 0; i < Event.globalEvents[eventName].length; i++) {
+                    if (Event.globalEvents[eventName][i].id === eventID) {
+                        Event.globalEvents[eventName].splice(i, 1);
+                        return;
+                    }
+                }
+            }
+        }
+    }
+}
 
-	export interface StoredEvent {
-		id: number;
-		callback: Function;
-	}
+export interface StoredEvent {
+    id: number;
+    callback: Function;
+}
 
-	export interface GlobalEventObject {
-		eventName: string;
-		data: any[];
-	}
+export interface GlobalEventObject {
+    eventName: string;
+    data: any[];
+}
 
-	export interface GlobalEvent {
-		[eventName: string]: Array<trains.event.StoredEvent>;
-	}
-
+export interface GlobalEvent {
+    [eventName: string]: Array<StoredEvent>;
 }

@@ -1,25 +1,19 @@
-/// <reference path="ISound.ts" />
+import { ISound } from "ISound";
 
-module trains.audio {
-	export class Player {
-		private muted: boolean = false;
-		private basePath: string = "audio/";
+export class Player {
+    private muted: boolean = false;
+    private basePath: string = "audio/";
 
-		constructor() {
-		}
+    public setMuted(mute: boolean): void {
+        this.muted = mute;
+    }
 
-		setMuted(mute: boolean): void {
-			this.muted = mute;
-		}
-
-		playSound(sound: trains.audio.ISound): void {
-			if (!this.muted && sound !== undefined) {
-				var soundToPlay = new Audio(this.basePath + sound.FileName);
-				if (soundToPlay !== undefined) {
-					soundToPlay.play();
-				}
-			}
-		}
-
-	}
+    public playSound(sound: ISound): void {
+        if (!this.muted && sound !== undefined) {
+            const soundToPlay = new Audio(this.basePath + sound.FileName);
+            if (soundToPlay !== undefined) {
+                soundToPlay.play();
+            }
+        }
+    }
 }

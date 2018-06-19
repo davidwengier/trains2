@@ -9,10 +9,12 @@
 /// <reference path="play.loop.render.ts" />
 /// <reference path="sound/Player.ts" />
 /// <reference path="sound/SoundLibrary.ts" />
-/// <reference path="particle/types/SmokeParticle.ts" />
 /// <reference path="sprite/TrackSpriteCollection.ts" />
 
+
+
 module trains.play {
+    //import { SmokeParticle } from "particle/types/SmokeParticle";
 
     export var gridSize: number = 40;
     export var gridColour: string = "#eee";
