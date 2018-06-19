@@ -96,13 +96,16 @@ module trains.play {
             if (this.carriage !== undefined) {
                 this.carriage.spawnCarriage(count);
             } else {
-                this.carriage = new TrainCarriage(-1, undefined, this.Renderer);
-                this.carriage.coords = {
+                var coords = {
                     currentX: this.coords.currentX,
                     currentY: this.coords.currentY,
                     previousX: this.coords.currentX + (-10 * this.magicBullshitCompareTo(this.coords.currentX, this.coords.previousX)),
                     previousY: this.coords.currentY + (-10 * this.magicBullshitCompareTo(this.coords.currentY, this.coords.previousY))
                 };
+                // can only place something down if there is a track there to place it on
+                if (GameBoard.getCell(GameBoard.getGridCoord(coords.currentX), GameBoard.getGridCoord(coords.currentY)) === undefined) return;
+                this.carriage = new TrainCarriage(-1, undefined, this.Renderer);
+                this.carriage.coords = coords;
                 this.carriage.trainColourIndex = this.trainColourIndex;
                 this.carriage.chooChooMotherFucker(this.carriagePadding + (trains.play.gridSize / 2), false);
                 this.carriage.coords.previousX = this.carriage.coords.currentX + (-10 * this.magicBullshitCompareTo(this.carriage.coords.currentX, this.carriage.coords.previousX));
