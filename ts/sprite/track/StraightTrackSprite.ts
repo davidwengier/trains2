@@ -2,7 +2,7 @@
 
 module trains.play {
     export class StraightTrackSprite extends BaseTrackSprite {
-        constructor(cellSize: number, trackWidth: number) {
+        constructor(cellSize: number, trackWidth: number, terminator: boolean = false) {
             super(cellSize);
 
             var numPlanks = 3;
@@ -20,13 +20,10 @@ module trains.play {
 
                 this.context.moveTo(xPosition, yPosition);
                 this.context.lineTo(xPosition, secondTrackPosY + trackWidth);
-                /*
-                if (cutOffTop && i === 1) {
-                    startX = xPosition + trackWidth - 1;        // why -1? cause canvas thats why
-                } else if (cutOffBottom && i === numPlanks) {
+                
+                if (terminator && i === numPlanks) {
                     endX = xPosition - 1;                       // why -1? cause canvas thats why
                 }
-                */
             }
             this.context.stroke();
 
