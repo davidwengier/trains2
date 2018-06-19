@@ -36,7 +36,7 @@ module trains.play {
             return (this.life >= this.lifetime);
         }
 
-        public Draw(context: CanvasRenderingContext2D): void {
+        public Draw(_: CanvasRenderingContext2D): void {
             throw new Error("abstract, not the art kind, but the extends kind");
         }
 
