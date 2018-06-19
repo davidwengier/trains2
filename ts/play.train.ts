@@ -439,7 +439,8 @@ module trains.play {
                 this.carriage.setPaused(paused);
             }
         }
-    }Number
+    }
+    
     export class TrainCarriage extends Train {
 
         constructor(id: number, 
