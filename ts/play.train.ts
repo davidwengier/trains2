@@ -40,8 +40,8 @@ module trains.play {
                 this.coords = {
                     currentX: cell.x + (trains.play.gridSize / 2),
                     currentY: cell.y + (trains.play.gridSize / 2),
-                    previousX: cell.x,
-                    previousY: cell.y - 1 //Cos we never want to be the centre of attention
+                    previousX: cell.x + (trains.play.gridSize / 2),
+                    previousY: cell.y + (trains.play.gridSize / 2) - 1, //Cos we never want to be the centre of attention
                 };
 
                 if (Math.floor(Math.random() * 10) === 0) {
@@ -98,7 +98,15 @@ module trains.play {
             speed *= this.trainSpeed;
             //Super small speeds cause MAJOR problems with the game loop.
             // First occurrence of this bug, speed was 1.13e-14!!!!!
+            var speedDeadlockCounter = 0;
             while (speed > 0.00001) {
+                if(speedDeadlockCounter++ > 10){
+                    // This needs to be cleaned up/fixed now that we can detect it!
+                    console.log("SpeedDeadlock");
+                    this.hammerTime();
+                    break;
+                }
+
                 var column = GameBoard.getGridCoord(this.coords.currentX);
                 var row = GameBoard.getGridCoord(this.coords.currentY);
                 var cell = GameBoard.getCell(column, row);
@@ -108,6 +116,7 @@ module trains.play {
                         this.waitForTrafficToClear(result.coords);
                         return;
                     }
+
                     this.coords = result.coords;
                     speed = result.remainingSpeed;
                 }
@@ -228,6 +237,11 @@ module trains.play {
             // We then multiply by -1 if the difference between the 2 angles in greater than Math.PI
             // This fixes a strange bug :)
             var direction = this.magicBullshitCompareTo(angleLast, angle) * ((Math.abs(angleLast - angle) > Math.PI) ? -1 : 1);
+
+            //If we end up with a direction of 0, it means we are stuck!
+            if(direction === 0) {
+                direction = -1;
+            }
 
             //We can then use the fact that (in radians) angle=lengthOfArc/radius to find what angle is needed
             // To move us 'speed' along the arc
