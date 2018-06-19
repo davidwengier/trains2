@@ -4,7 +4,7 @@ module trains.play {
 
     export class Cell {
 
-        public switchState: boolean;
+        public switchState: boolean = false;
         public happy: boolean;
         public x: number;
         public y: number;
