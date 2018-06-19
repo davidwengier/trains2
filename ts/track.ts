@@ -14,7 +14,19 @@ module trains.play {
         }
 
         public drawStraightTrack(context: CanvasRenderingContext2D, cutOffTop: boolean, cutOffBottom: boolean): void {
-            this.SpriteCollection.StraightTrackSprite.Draw(context, 0, 0);
+            if((cutOffTop || cutOffBottom) && (cutOffTop != cutOffBottom))
+            {
+                if(cutOffTop)
+                {
+                    context.translate(trains.play.gridSize, trains.play.gridSize);
+                    context.rotate(Math.PI);
+                }
+                this.SpriteCollection.StraightTerminatorTrackSprite.Draw(context, 0, 0);
+            }
+            else
+            {
+                this.SpriteCollection.StraightTrackSprite.Draw(context, 0, 0);
+            }
         }
 
         private drawCurvedTrack(context: CanvasRenderingContext2D, drawPlanks: boolean): void {
