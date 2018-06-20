@@ -1,8 +1,8 @@
-import { Sprite } from "Sprite";
-import { CurvedTrackSprite } from "track/CurvedTrackSprite";
-import { StraightTrackSprite } from "track/StraightTrackSprite";
+import Sprite from "Sprite";
+import CurvedTrackSprite from "track/CurvedTrackSprite";
+import StraightTrackSprite from "track/StraightTrackSprite";
 
-export class TrackSpriteCollection {
+export default class TrackSpriteCollection {
     public readonly StraightTrackSprite: Sprite;
     public readonly StraightTerminatorTrackSprite: Sprite;
     public readonly CurvedTrackSprite: Sprite;

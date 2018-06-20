@@ -1,6 +1,6 @@
-import { ISound } from "./ISound";
+import ISound from "./ISound";
 
-export class SoundPlayer {
+export default class SoundPlayer {
     private muted: boolean = false;
     private basePath: string = "audio/";
 

@@ -1,11 +1,8 @@
-// tslint:disable-next-line:no-reference
-/// <reference path ="../types/jquery.d.ts"/>
-
-import { Board } from "./Board";
+import Board from "./Board";
 import { Direction } from "./Direction";
-import { INeighbouringCells } from "./INeighbouringCells";
+import INeighbouringCells from "./INeighbouringCells";
 
-export abstract class Cell {
+export default abstract class Cell {
 
     public switchState: boolean = false;
     public happy: boolean;

@@ -1,4 +1,4 @@
-export class TrainRenderer {
+export default class TrainRenderer {
 
     // dark then light
     public readonly trainColours: string[][] = [

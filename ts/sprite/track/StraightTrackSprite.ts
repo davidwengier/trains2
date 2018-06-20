@@ -1,6 +1,6 @@
-import { BaseTrackSprite } from "BaseTrackSprite";
+import BaseTrackSprite from "BaseTrackSprite";
 
-export class StraightTrackSprite extends BaseTrackSprite {
+export default class StraightTrackSprite extends BaseTrackSprite {
     constructor(cellSize: number, trackWidth: number, terminator: boolean = false) {
         super(cellSize);
 

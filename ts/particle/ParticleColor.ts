@@ -1,6 +1,6 @@
-import { ParticleHelper } from "./ParticleHelper";
+import ParticleHelper from "./ParticleHelper";
 
-export class ParticleColor {
+export default class ParticleColor {
     public Red: number;
     public Green: number;
     public Blue: number;

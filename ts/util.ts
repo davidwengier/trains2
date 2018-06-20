@@ -1,7 +1,4 @@
-// tslint:disable-next-line:no-reference
-/// <reference path ="../types/jquery.d.ts"/>
-
-export class Util {
+export default class Util {
     public static getRandomName(): string {
         return "The " + this.getRandomElement(this.adjectives) + " " + this.getRandomElement(this.names);
     }

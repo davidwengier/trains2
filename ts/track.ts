@@ -1,10 +1,10 @@
-import { Board } from "./Board";
-import { Cell } from "./Cell";
+import Board from "./Board";
+import Cell from "./Cell";
 import { Direction } from "./Direction";
-import { TrackSpriteCollection } from "./sprite/TrackSpriteCollection";
-import { Train } from "./Train";
+import TrackSpriteCollection from "./sprite/TrackSpriteCollection";
+import Train from "./Train";
 
-export class Track extends Cell {
+export default class Track extends Cell {
     private SpriteCollection: TrackSpriteCollection;
     constructor(id: string, column: number, row: number, cellSize: number,
                 spriteCollection: TrackSpriteCollection, gameBoard: Board) {

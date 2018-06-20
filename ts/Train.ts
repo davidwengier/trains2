@@ -1,15 +1,14 @@
-import { Board } from "./Board";
-import { Cell } from "./Cell";
+import Board from "./Board";
+import Cell from "./Cell";
 import { Direction } from "./Direction";
-import { GameEvent } from "./GameEvent";
-import { ITrainCoords } from "./ITrainCoords";
-import { ITrainCoordsResult } from "./ITrainCoordsResult";
-import { SmokeParticle } from "./particle/types/SmokeParticle";
-import { TrainCarriage } from "./TrainCarriage";
-import { TrainRenderer } from "./TrainRenderer";
-import { Util } from "./util";
+import GameEvent from "./GameEvent";
+import ITrainCoords from "./ITrainCoords";
+import ITrainCoordsResult from "./ITrainCoordsResult";
+import SmokeParticle from "./particle/types/SmokeParticle";
+import TrainRenderer from "./TrainRenderer";
+import Util from "./util";
 
-export class Train {
+export default class Train {
     public static SpawnNewTrain(id: number, cell: Cell, renderer: TrainRenderer,
                                 gameBoard: Board, cellSize: number): Train {
         const coords = this.GenerateSpawnCoords(cell, cellSize);
@@ -442,7 +441,7 @@ export class Train {
     }
 
     private willNotHaveAFunTimeAt(_: ITrainCoords): boolean {
-        const frontCoords = this.getFrontOfTrain(10);
+        const frontCoords = this.getFrontOfTrain(1);
         const myColumn = this.GameBoard.getGridCoord(frontCoords.currentX);
         const myRow = this.GameBoard.getGridCoord(frontCoords.currentY);
         if (this.GameBoard.getCell(myColumn, myRow) === undefined) { return true; }
@@ -470,5 +469,47 @@ export class Train {
         if (this.carriage !== undefined) {
             this.carriage.setPaused(paused);
         }
+    }
+}
+
+// tslint:disable-next-line:max-classes-per-file
+class TrainCarriage extends Train {
+
+    constructor(id: number,
+                coords: ITrainCoords,
+                renderer: TrainRenderer,
+                trainColourIndex: number,
+                gameBoard: Board,
+                cellSize: number) {
+
+        super(id, coords, renderer, trainColourIndex, "carriage", gameBoard, cellSize);
+    }
+
+    public draw(context: CanvasRenderingContext2D, translate: boolean = true): void {
+        const x = this.coords.currentX;
+        const y = this.coords.currentY;
+        const angle = Math.atan2(this.coords.previousX - x, this.coords.previousY - y);
+
+        context.save();
+
+        if (translate) {
+            context.translate(x, y);
+            context.rotate((angle * -1) + ((this.imageReverse < 0) ? Math.PI : 0));
+        } else {
+            context.translate(this.cellSize / 2, this.cellSize / 2);
+        }
+
+        this.Renderer.DrawCarriage(context, this.trainColourIndex);
+
+        context.restore();
+
+        if ((this.carriage !== undefined) && translate) {
+            this.carriage.draw(context, translate);
+            this.drawLink(context);
+        }
+    }
+
+    public drawLighting(_: CanvasRenderingContext2D): void {
+        // Do nothing
     }
 }

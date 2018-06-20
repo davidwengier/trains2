@@ -1,6 +1,6 @@
-import { Cell } from "./Cell";
+import Cell from "./Cell";
 
-export interface INeighbouringCells {
+export default interface INeighbouringCells {
     up: Cell | undefined;
     right: Cell | undefined;
     down: Cell | undefined;

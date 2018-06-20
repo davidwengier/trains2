@@ -1,25 +1,17 @@
-// tslint:disable-next-line:no-reference
-/// <reference path ="../types/jquery.d.ts"/>
-
-import { Board } from "./Board";
-import { GameEvent } from "./GameEvent";
+import Board from "./Board";
+import GameEvent from "./GameEvent";
 import { IPlayComponents } from "./IPlayComponents";
-import { Train } from "./Train";
-import { Util } from "./util";
+import Train from "./Train";
+import Util from "./util";
 
-export function InitialisePlay($container: JQuery): void {
-    const manager = new PlayManager($container);
-
-    manager.Start();
-}
-export class PlayManager {
+export default class PlayManager {
     private readonly animationEndEventString =
         "webkitAnimationEnd mozAnimationEnd MSAnimationEnd onanimationend animationend";
     private playComponents: IPlayComponents;
     private gameBoard: Board;
 
     constructor($container: JQuery) {
-        this.playComponents = GetPlayComponent($container);
+        this.playComponents = this.GetPlayComponent($container);
         this.gameBoard = new Board(this.playComponents);
 
         const top = ($(window).height() - this.gameBoard.canvasHeight) / 2;
@@ -35,9 +27,7 @@ export class PlayManager {
             containment: "body",
             handle: ".ui-handle"
         });
-    }
 
-    public Start(): void {
         this.AttachEvents();
 
         this.gameBoard.loadCells();
@@ -57,7 +47,7 @@ export class PlayManager {
             this.playComponents.$globalButtons.addClass("minimised");
         });
 
-        this.playComponents.$globalButtons.find("button").click((event) => {
+        this.playComponents.$globalButtons.find("button").click((event?: any) => {
             if (event.currentTarget !== null) {
                 this.gameBoard.globalControlClick(event.currentTarget);
             }
@@ -67,13 +57,13 @@ export class PlayManager {
             this.gameBoard.hideTrainControls();
         });
 
-        this.playComponents.$trainButtons.find("button").click((event) => {
+        this.playComponents.$trainButtons.find("button").click((event?: any) => {
             if (event.currentTarget !== null) {
                 this.gameBoard.trainControlClick(event.currentTarget);
             }
         });
 
-        this.playComponents.$trackButtons.find("button").click((event) => {
+        this.playComponents.$trackButtons.find("button").click((event?: any) => {
             if (event.currentTarget !== null) {
                 this.gameBoard.trackControlClick(event.currentTarget);
                 Util.selectButton($(event.currentTarget));
@@ -136,26 +126,26 @@ export class PlayManager {
             });
         });
     }
-}
 
-export function GetPlayComponent($container: JQuery): IPlayComponents {
+    private GetPlayComponent($container: JQuery): IPlayComponents {
 
-    const $trainCanvas = $container.find(".ui-train-canvas");
-    const $trackCanvas = $container.find(".ui-track-canvas");
-    const $gridCanvas = $container.find(".ui-grid-canvas");
-    const $trainLogoCanvas = $container.find(".ui-train-logo-canvas");
+        const $trainCanvas = $container.find(".ui-train-canvas");
+        const $trackCanvas = $container.find(".ui-track-canvas");
+        const $gridCanvas = $container.find(".ui-grid-canvas");
+        const $trainLogoCanvas = $container.find(".ui-train-logo-canvas");
 
-    return {
-        $trackCanvas,
-        $trainCanvas,
-        $gridCanvas,
-        $trainLogoCanvas,
-        $canvases: $().add($trainCanvas).add($trackCanvas).add($gridCanvas),
-        $trackButtons: $container.find(".ui-track-buttons"),
-        $trainButtons: $container.find(".ui-train-buttons"),
-        $globalButtons: $container.find(".ui-game-buttons"),
-        $trainName: $container.find(".ui-train-name"),
-        $mute: $container.find(".ui-mute"),
-        $autosave: $container.find(".ui-autosave")
-    };
+        return {
+            $trackCanvas,
+            $trainCanvas,
+            $gridCanvas,
+            $trainLogoCanvas,
+            $canvases: $().add($trainCanvas).add($trackCanvas).add($gridCanvas),
+            $trackButtons: $container.find(".ui-track-buttons"),
+            $trainButtons: $container.find(".ui-train-buttons"),
+            $globalButtons: $container.find(".ui-game-buttons"),
+            $trainName: $container.find(".ui-train-name"),
+            $mute: $container.find(".ui-mute"),
+            $autosave: $container.find(".ui-autosave")
+        };
+    }
 }

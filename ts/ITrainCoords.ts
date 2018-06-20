@@ -1,4 +1,4 @@
-export interface ITrainCoords {
+export default interface ITrainCoords {
     currentX: number;
     currentY: number;
     previousX: number;

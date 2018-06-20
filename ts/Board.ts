@@ -1,20 +1,20 @@
-import { BoardRenderer } from "./BoardRenderer";
-import { Cell } from "./Cell";
-import { GameEvent } from "./GameEvent";
-import { GameLoop } from "./GameLoop";
-import { IBoardCells } from "./IBoardCells";
-import { INeighbouringCells } from "./INeighbouringCells";
+import BoardRenderer from "./BoardRenderer";
+import Cell from "./Cell";
+import GameEvent from "./GameEvent";
+import GameLoop from "./GameLoop";
+import IBoardCells from "./IBoardCells";
+import INeighbouringCells from "./INeighbouringCells";
 import { IPlayComponents } from "./IPlayComponents";
-import { SmokeParticle } from "./particle/types/SmokeParticle";
-import { RenderLoop } from "./RenderLoop";
-import { SoundLibrary } from "./sound/SoundLibrary";
-import { SoundPlayer } from "./sound/SoundPlayer";
-import { TrackSpriteCollection } from "./sprite/TrackSpriteCollection";
+import SmokeParticle from "./particle/types/SmokeParticle";
+import RenderLoop from "./RenderLoop";
+import SoundLibrary from "./sound/SoundLibrary";
+import SoundPlayer from "./sound/SoundPlayer";
+import TrackSpriteCollection from "./sprite/TrackSpriteCollection";
 import { Tool } from "./Tool";
-import { Track } from "./track";
-import { Train } from "./Train";
-import { TrainRenderer } from "./TrainRenderer";
-import { Util } from "./util";
+import Track from "./track";
+import Train from "./Train";
+import TrainRenderer from "./TrainRenderer";
+import Util from "./util";
 
 export let gridSize: number = 40;
 export let gridColour: string = "#eee";
@@ -24,7 +24,7 @@ export let trackPadding = 10;
 export let firstTrackPosY = trackPadding;
 export let secondTrackPosY = gridSize - trackPadding;
 
-export class Board {
+export default class Board {
 
     public trainCanvas: HTMLCanvasElement;
     public trainContext: CanvasRenderingContext2D;

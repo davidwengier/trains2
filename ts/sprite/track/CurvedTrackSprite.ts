@@ -1,6 +1,6 @@
-import { BaseTrackSprite } from "BaseTrackSprite";
+import BaseTrackSprite from "BaseTrackSprite";
 
-export class CurvedTrackSprite extends BaseTrackSprite {
+export default class CurvedTrackSprite extends BaseTrackSprite {
     constructor(cellSize: number, drawPlanks: boolean, trackWidth: number) {
         super(cellSize);
         this.drawCurvedTrack(this.context, drawPlanks, trackWidth, cellSize);

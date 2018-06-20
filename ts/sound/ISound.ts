@@ -1,3 +1,3 @@
-export interface ISound {
+export default interface ISound {
     FileName: string;
 }

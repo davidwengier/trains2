@@ -1,5 +1,5 @@
-import { Cell } from "./Cell";
+import Cell from "./Cell";
 
-export interface IBoardCells {
+export default interface IBoardCells {
     [position: string]: Cell;
 }

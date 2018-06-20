@@ -1,4 +1,4 @@
-export abstract class Loop {
+export default abstract class Loop {
     private loopRunning = false;
     private lastDuration = 0;
     private lastStartTime = 0;

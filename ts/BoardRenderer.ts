@@ -1,6 +1,6 @@
-import { IBoardCells } from "./IBoardCells";
+import IBoardCells from "./IBoardCells";
 
-export class BoardRenderer {
+export default class BoardRenderer {
     public static drawGrid(context: CanvasRenderingContext2D,
                            canvasWidth: number, canvasHeight: number,
                            gridSize: number, gridColour: string): void {

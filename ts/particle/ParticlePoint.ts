@@ -1,7 +1,7 @@
-import { ParticleColor } from "./ParticleColor";
-import { ParticleHelper } from "./ParticleHelper";
+import ParticleColor from "./ParticleColor";
+import ParticleHelper from "./ParticleHelper";
 
-export class ParticlePoint {
+export default class ParticlePoint {
     public Scale: number;
     public Angle: number;
     public Velocity: number;

@@ -1,4 +1,4 @@
-export class GameEvent {
+export default class GameEvent {
     public static globalEventID = 1;
     public static globalEvents: IGlobalEvent = {};
 

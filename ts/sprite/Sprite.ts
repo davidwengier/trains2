@@ -1,4 +1,4 @@
-export class Sprite {
+export default class Sprite {
     public readonly context: CanvasRenderingContext2D;
     private readonly canvas: HTMLCanvasElement;
     private restored: boolean = false;

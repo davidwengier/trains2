@@ -14,18 +14,13 @@
 	<link rel="stylesheet" href="css/play.css">
 	<link rel="stylesheet" href="css/train_logo.css">
 
-	<script src="scripts/jquery-1.11.2.min.js"></script>
-	<script src="scripts/jquery-ui.min.js"></script>
-	<script src="scripts/jquery.awesome-cursor.min.js"></script>
-
-	<script src="js/train.js"></script>
 	<meta content="width=device-width, initial-scale=1, user-scalable=no" name="viewport">
 </head>
 
 <body cz-shortcut-listen="true">
 	<div class="train-logo-container">
 		<div id="container">
-			<pre class="ascii-logo ui-ascii-logo animated">
+			<pre id="logo" class="ascii-logo ui-ascii-logo animated">
    o o o ~~  ~~ ~
   o     _____
 .][_mm__|[]| ,===___
@@ -34,14 +29,26 @@ _/oo-OOOO-oo' !oo!!oo!
             </pre>
 		</div>
         <script type="text/javascript">
-            $(function () {
-                if (trains.logo.InitialiseLogo) {
-                    var $container = $("#container");
-                    trains.logo.InitialiseLogo($container);
-                } else {
-                    alert("trains.logo.InitialiseLogo: not found");
-                }
-            });
+			const logo = document.getElementById("logo");
+			const outClass = "fadeOutLeft";
+			const inClass = "fadeInRight";
+			const containsClass = (c) => logo.classList.contains(c);
+			const removeClass = (c) => logo.classList.remove(c);
+			const addClass = (c) => logo.classList.add(c);
+			logo.addEventListener("mouseover", () => {
+				if (!containsClass(outClass) && !containsClass(inClass)) {
+					addClass(outClass);
+				}
+			});
+			"webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend"
+			.split(" ").forEach((event)=>logo.addEventListener(event, () => {
+				if (containsClass(outClass)) {
+					removeClass(outClass)
+					addClass(inClass);
+				} else if (containsClass(inClass)) {
+					removeClass(inClass)
+				}
+			}));
         </script>
 		<div class="text">
 			<h1>trains</h1>

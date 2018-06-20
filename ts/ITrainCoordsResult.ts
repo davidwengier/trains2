@@ -1,6 +1,6 @@
-import { ITrainCoords } from "./ITrainCoords";
+import ITrainCoords from "./ITrainCoords";
 
-export interface ITrainCoordsResult {
+export default interface ITrainCoordsResult {
     coords: ITrainCoords;
     remainingSpeed: number;
 }

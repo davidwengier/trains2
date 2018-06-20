@@ -1,7 +1,7 @@
 // tslint:disable-next-line:no-reference
 /// <reference path ="../types/jquery.d.ts"/>
 
-export interface IPlayComponents {
+export declare interface IPlayComponents {
     $trainCanvas: JQuery;
     $trackCanvas: JQuery;
     $gridCanvas: JQuery;

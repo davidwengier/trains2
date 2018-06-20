@@ -1,6 +1,6 @@
-import { Sprite } from "Sprite";
+import Sprite from "Sprite";
 
-export class BaseTrackSprite extends Sprite {
+export default class BaseTrackSprite extends Sprite {
     public plankColour = "#382E1C";
     public trackColour = "#6E7587";
     public trackPadding = 10;

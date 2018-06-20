@@ -1,9 +1,9 @@
-import { Board } from "./Board";
-import { Loop } from "./engine/Loop";
-import { SmokeParticle } from "./particle/types/SmokeParticle";
-import { Train } from "./Train";
+import Board from "./Board";
+import Loop from "./engine/Loop";
+import SmokeParticle from "./particle/types/SmokeParticle";
+import Train from "./Train";
 
-export class RenderLoop extends Loop {
+export default class RenderLoop extends Loop {
 
     // DO NOT CHANGE FROM 240!!!!!!!!
     private msPerDayCycle = 240;
