@@ -1,10 +1,10 @@
 // tslint:disable-next-line:no-reference
 /// <reference path ="../types/jquery.d.ts"/>
 
+import { Board } from "./Board";
 import { GameEvent } from "./GameEvent";
 import { IPlayComponents } from "./IPlayComponents";
-import { Board } from "./play.board";
-import { Train } from "./play.train";
+import { Train } from "./Train";
 import { Util } from "./util";
 
 export function InitialisePlay($container: JQuery): void {

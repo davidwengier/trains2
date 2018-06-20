@@ -1,9 +1,9 @@
 // tslint:disable-next-line:no-reference
 /// <reference path ="../types/jquery.d.ts"/>
 
+import { Board } from "./Board";
 import { Direction } from "./Direction";
 import { INeighbouringCells } from "./INeighbouringCells";
-import { Board } from "./play.board";
 
 export abstract class Cell {
 

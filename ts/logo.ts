@@ -1,3 +1,6 @@
+// tslint:disable-next-line:no-reference
+/// <reference path ="../types/jquery.d.ts"/>
+
 export class Logo {
 
     public static InitialiseLogo($container: JQuery): void {

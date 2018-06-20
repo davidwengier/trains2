@@ -1,12 +1,12 @@
+import { Board } from "./Board";
+import { Cell } from "./Cell";
 import { Direction } from "./Direction";
 import { GameEvent } from "./GameEvent";
 import { ITrainCoords } from "./ITrainCoords";
 import { ITrainCoordsResult } from "./ITrainCoordsResult";
 import { SmokeParticle } from "./particle/types/SmokeParticle";
-import { Board } from "./play.board";
-import { Cell } from "./play.cell";
-import { TrainRenderer } from "./play.train.renderer";
 import { TrainCarriage } from "./TrainCarriage";
+import { TrainRenderer } from "./TrainRenderer";
 import { Util } from "./util";
 
 export class Train {

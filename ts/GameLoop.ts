@@ -1,7 +1,7 @@
-import {Loop} from "engine/loop";
+import { Board } from "./Board";
+import { Loop } from "./engine/Loop";
 import { SmokeParticle } from "./particle/types/SmokeParticle";
-import { Board } from "./play.board";
-import { Train } from "./play.train";
+import { Train } from "./Train";
 
 export class GameLoop extends Loop {
     public gameTimeElapsed = 0;

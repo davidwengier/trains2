@@ -1,8 +1,8 @@
+import { Board } from "./Board";
+import { Cell } from "./Cell";
 import { Direction } from "./Direction";
-import { Board } from "./play.board";
-import {Cell} from "./play.cell";
-import { Train } from "./play.train";
-import {TrackSpriteCollection} from "./sprite/TrackSpriteCollection";
+import { TrackSpriteCollection } from "./sprite/TrackSpriteCollection";
+import { Train } from "./Train";
 
 export class Track extends Cell {
     private SpriteCollection: TrackSpriteCollection;

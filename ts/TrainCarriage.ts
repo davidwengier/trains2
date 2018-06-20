@@ -1,7 +1,7 @@
+import { Board } from "./Board";
 import { ITrainCoords } from "./ITrainCoords";
-import { Board } from "./play.board";
-import { Train } from "./play.train";
-import { TrainRenderer } from "./play.train.renderer";
+import { Train } from "./Train";
+import { TrainRenderer } from "./TrainRenderer";
 
 export class TrainCarriage extends Train {
 

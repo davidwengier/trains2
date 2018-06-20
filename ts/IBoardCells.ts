@@ -1,4 +1,4 @@
-import { Cell } from "./play.cell";
+import { Cell } from "./Cell";
 
 export interface IBoardCells {
     [position: string]: Cell;

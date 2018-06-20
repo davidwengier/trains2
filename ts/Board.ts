@@ -1,19 +1,19 @@
+import { BoardRenderer } from "./BoardRenderer";
+import { Cell } from "./Cell";
 import { GameEvent } from "./GameEvent";
+import { GameLoop } from "./GameLoop";
 import { IBoardCells } from "./IBoardCells";
 import { INeighbouringCells } from "./INeighbouringCells";
 import { IPlayComponents } from "./IPlayComponents";
 import { SmokeParticle } from "./particle/types/SmokeParticle";
-import { BoardRenderer } from "./play.board.renderer";
-import { Cell } from "./play.cell";
-import { GameLoop } from "./play.loop.game";
-import { RenderLoop } from "./play.loop.render";
-import { Train } from "./play.train";
-import { TrainRenderer } from "./play.train.renderer";
+import { RenderLoop } from "./RenderLoop";
 import { SoundLibrary } from "./sound/SoundLibrary";
 import { SoundPlayer } from "./sound/SoundPlayer";
 import { TrackSpriteCollection } from "./sprite/TrackSpriteCollection";
 import { Tool } from "./Tool";
 import { Track } from "./track";
+import { Train } from "./Train";
+import { TrainRenderer } from "./TrainRenderer";
 import { Util } from "./util";
 
 export let gridSize: number = 40;
