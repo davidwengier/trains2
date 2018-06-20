@@ -1,5 +1,5 @@
-import { ParticleColor } from "ParticleColor";
-import { ParticleHelper } from "ParticleHelper";
+import { ParticleColor } from "./ParticleColor";
+import { ParticleHelper } from "./ParticleHelper";
 
 export class ParticlePoint {
     public Scale: number;

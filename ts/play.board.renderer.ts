@@ -1,18 +1,18 @@
-/// <reference path="play.board.ts" />
-/// <reference path="play.cell.ts" />
+import { IBoardCells } from "./IBoardCells";
 
-module trains.play.BoardRenderer {
-
-    export function drawGrid(context: CanvasRenderingContext2D, canvasWidth: number, canvasHeight: number): void {
+export class BoardRenderer {
+    public static drawGrid(context: CanvasRenderingContext2D,
+                           canvasWidth: number, canvasHeight: number,
+                           gridSize: number, gridColour: string): void {
 
         context.beginPath();
 
-        for (var x = gridSize; x < canvasWidth; x += gridSize) {
+        for (let x = gridSize; x < canvasWidth; x += gridSize) {
             context.moveTo(x, 0);
             context.lineTo(x, canvasHeight);
         }
 
-        for (var y = gridSize; y < canvasHeight; y += gridSize) {
+        for (let y = gridSize; y < canvasHeight; y += gridSize) {
             context.moveTo(0, y);
             context.lineTo(canvasWidth, y);
         }
@@ -21,17 +21,18 @@ module trains.play.BoardRenderer {
         context.stroke();
     }
 
-    export function redrawCells(cells: trains.play.BoardCells, context: CanvasRenderingContext2D, canvasWidth: number, canvasHeight: number): void {
-        clearCells(context, canvasWidth, canvasHeight);
+    public static redrawCells(cells: IBoardCells, context: CanvasRenderingContext2D,
+                              canvasWidth: number, canvasHeight: number): void {
+        BoardRenderer.clearCells(context, canvasWidth, canvasHeight);
 
-        for (var id in cells) {
+        for (const id in cells) {
             if (cells.hasOwnProperty(id)) {
                 cells[id].draw(context);
             }
         }
     }
 
-    export function clearCells(context: CanvasRenderingContext2D, canvasWidth: number, canvasHeight: number): void {
+    public static clearCells(context: CanvasRenderingContext2D, canvasWidth: number, canvasHeight: number): void {
         context.beginPath();
         context.clearRect(0, 0, canvasWidth, canvasHeight);
         context.closePath();

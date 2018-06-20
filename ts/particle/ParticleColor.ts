@@ -1,4 +1,4 @@
-import { ParticleHelper } from "ParticleHelper";
+import { ParticleHelper } from "./ParticleHelper";
 
 export class ParticleColor {
     public Red: number;

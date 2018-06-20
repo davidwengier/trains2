@@ -1,176 +1,161 @@
-/// <reference path="../types/jqueryui.d.ts" />
-/// <reference path="play.board.ts" />
-/// <reference path="util.ts" />
-/// <reference path="event.ts" />
-/// <reference path="logo.ts" />
+// tslint:disable-next-line:no-reference
+/// <reference path ="../types/jquery.d.ts"/>
 
-module trains.play {
+import { GameEvent } from "./GameEvent";
+import { IPlayComponents } from "./IPlayComponents";
+import { Board } from "./play.board";
+import { Train } from "./play.train";
+import { Util } from "./util";
 
-    export function InitialisePlay($container: JQuery): void {
-        var manager = new trains.play.PlayManager($container);
+export function InitialisePlay($container: JQuery): void {
+    const manager = new PlayManager($container);
 
-        manager.Start();
+    manager.Start();
+}
+export class PlayManager {
+    private readonly animationEndEventString =
+        "webkitAnimationEnd mozAnimationEnd MSAnimationEnd onanimationend animationend";
+    private playComponents: IPlayComponents;
+    private gameBoard: Board;
+
+    constructor($container: JQuery) {
+        this.playComponents = GetPlayComponent($container);
+        this.gameBoard = new Board(this.playComponents);
+
+        const top = ($(window).height() - this.gameBoard.canvasHeight) / 2;
+        const left = ($(window).width() - this.gameBoard.canvasWidth) / 2;
+
+        $("body").height($(window).height());
+        this.playComponents.$trackButtons.css("top", top);
+        this.playComponents.$trainButtons.css("top", 15).css("right", 15);
+        this.playComponents.$mute.width(left);
+        this.playComponents.$autosave.width(left);
+
+        this.playComponents.$trainButtons.draggable({
+            containment: "body",
+            handle: ".ui-handle"
+        });
     }
 
-    export var GameBoard: Board;
+    public Start(): void {
+        this.AttachEvents();
 
-    export class PlayManager {
+        this.gameBoard.loadCells();
+    }
 
-        private playComponents: trains.play.PlayComponents;
+    public DisplayTrainSpeed(speed: number) {
+        this.playComponents.$trainButtons.find(".ui-speed").text((speed * 10).toString() + " kms/h");
+    }
 
-        constructor($container: JQuery) {
-            this.playComponents = GetPlayComponent($container);
-            trains.play.GameBoard = new trains.play.Board(this.playComponents);
+    private AttachEvents(): void {
 
-            var top = ($(window).height() - trains.play.GameBoard.canvasHeight) / 2;
-            var left = ($(window).width() - trains.play.GameBoard.canvasWidth) / 2;
+        this.playComponents.$globalButtons.find(".ui-title").click(() => {
+            this.playComponents.$globalButtons.toggleClass("minimised");
+        });
 
-            $('body').height($(window).height());
-            this.playComponents.$trackButtons.css("top", top);
-            this.playComponents.$trainButtons.css("top", 15).css("right", 15);
-            this.playComponents.$mute.width(left);
-            this.playComponents.$autosave.width(left);
+        this.playComponents.$globalButtons.find(".ui-minimise").click(() => {
+            this.playComponents.$globalButtons.addClass("minimised");
+        });
 
-            this.playComponents.$trainButtons.draggable({
-                handle: '.ui-handle',
-                containment: 'body'
-            });
-        }
+        this.playComponents.$globalButtons.find("button").click((event) => {
+            if (event.currentTarget !== null) {
+                this.gameBoard.globalControlClick(event.currentTarget);
+            }
+        });
 
-        public Start(): void {
-            this.AttachEvents();
+        this.playComponents.$trainButtons.find(".ui-close").click(() => {
+            this.gameBoard.hideTrainControls();
+        });
 
-            GameBoard.loadCells();
-        }
+        this.playComponents.$trainButtons.find("button").click((event) => {
+            if (event.currentTarget !== null) {
+                this.gameBoard.trainControlClick(event.currentTarget);
+            }
+        });
 
-        private AttachEvents(): void {
+        this.playComponents.$trackButtons.find("button").click((event) => {
+            if (event.currentTarget !== null) {
+                this.gameBoard.trackControlClick(event.currentTarget);
+                Util.selectButton($(event.currentTarget));
+            }
+        });
 
-            this.playComponents.$globalButtons.find('.ui-title').click(() => {
-                this.playComponents.$globalButtons.toggleClass("minimised");
-            });
+        this.playComponents.$mute.click(() => {
+            const $mute = this.playComponents.$mute;
+            const mute = Util.toBoolean($mute.val());
+            if (!mute) {
+                $mute.val("true");
+            } else {
+                $mute.val("false");
+            }
+            this.gameBoard.setMuted(!mute);
+        });
 
-            this.playComponents.$globalButtons.find('.ui-minimise').click(() => {
-                this.playComponents.$globalButtons.addClass("minimised");
-            });
+        this.playComponents.$autosave.click(() => {
+            const $autosave = this.playComponents.$autosave;
+            const autosave = Util.toBoolean($autosave.val());
+            if (!autosave) {
+                $autosave.val("true");
+            } else {
+                $autosave.val("false");
+            }
+            this.gameBoard.setAutoSave(!autosave);
+            if (!autosave) {
+                this.gameBoard.saveCells();
+            }
+        });
 
-            this.playComponents.$globalButtons.find('button').click((event) => {
-                if(event.currentTarget !== null) {
-                    trains.play.GameBoard.globalControlClick(event.currentTarget);
-                }
-            });
-
-            this.playComponents.$trainButtons.find('.ui-close').click(() => {
-                trains.play.GameBoard.hideTrainControls();
-            });
-
-            this.playComponents.$trainButtons.find('button').click((event) => {
-                if(event.currentTarget !== null) {
-                    trains.play.GameBoard.trainControlClick(event.currentTarget);
-                }
-            });
-
-            this.playComponents.$trackButtons.find('button').click((event) => {
-                if(event.currentTarget !== null) {
-                    trains.play.GameBoard.trackControlClick(event.currentTarget);
-                    trains.util.selectButton($(event.currentTarget));
-                }
-            });
-
-            this.playComponents.$mute.click(() => {
-                var $mute = this.playComponents.$mute;
-                var mute = trains.util.toBoolean($mute.val());
-                if (!mute) {
-                    $mute.val("true");
-                } else {
-                    $mute.val("false");
-                }
-                trains.play.GameBoard.setMuted(!mute);
-            });
-
-            this.playComponents.$autosave.click(() => {
-                var $autosave = this.playComponents.$autosave;
-                var autosave = trains.util.toBoolean($autosave.val());
-                if (!autosave) {
-                    $autosave.val("true");
-                } else {
-                    $autosave.val("false");
-                }
-                trains.play.GameBoard.setAutoSave(!autosave);
-                if (!autosave) {
-                    trains.play.GameBoard.saveCells();
-                }
-            });
-
-            trains.event.On("speedchanged", (_, trainID: number, speed: number) => {
-                var setTrainSpeed = false;
-                if (trains.play.GameBoard.selectedTrain !== undefined) {
-                    if (trainID === trains.play.GameBoard.selectedTrain.id) {
-                        setTrainSpeed = true;
-                    }
-                } else {
+        GameEvent.On("speedchanged", (_, trainID: number, speed: number) => {
+            let setTrainSpeed = false;
+            if (this.gameBoard.selectedTrain !== undefined) {
+                if (trainID === this.gameBoard.selectedTrain.id) {
                     setTrainSpeed = true;
                 }
+            } else {
+                setTrainSpeed = true;
+            }
 
-                if (setTrainSpeed) {
-                    this.DisplayTrainSpeed(speed);
-                }
+            if (setTrainSpeed) {
+                this.DisplayTrainSpeed(speed);
+            }
+        });
+
+        GameEvent.On("showtraincontrols", (_, train: Train) => {
+            this.playComponents.$trainName.text(train.name);
+            this.playComponents.$trainButtons.addClass("flipInX").show();
+            this.playComponents.$trainButtons.one(this.animationEndEventString, () => {
+                this.playComponents.$trainButtons.removeClass("flipInX");
             });
+            this.DisplayTrainSpeed(train.getTrainSpeed());
+        });
 
-            trains.event.On("showtraincontrols", (_, train: trains.play.Train) => {
-                this.playComponents.$trainName.text(train.name);
-                this.playComponents.$trainButtons.addClass("flipInX").show();
-                this.playComponents.$trainButtons.one(trains.play.animationEndEventString, () => {
-                    this.playComponents.$trainButtons.removeClass("flipInX");
-                });
-                this.DisplayTrainSpeed(train.getTrainSpeed());
+        GameEvent.On("hidetraincontrols", (_) => {
+            this.playComponents.$trainButtons.addClass("flipOutX");
+            this.playComponents.$trainButtons.one(this.animationEndEventString, () => {
+                this.playComponents.$trainButtons.removeClass("flipOutX").hide();
             });
-
-            trains.event.On("hidetraincontrols", (_) => {
-                this.playComponents.$trainButtons.addClass("flipOutX");
-                this.playComponents.$trainButtons.one(trains.play.animationEndEventString, () => {
-                    this.playComponents.$trainButtons.removeClass("flipOutX").hide();
-                });
-            });
-        }
-
-        DisplayTrainSpeed(speed: number) {
-            this.playComponents.$trainButtons.find('.ui-speed').text((speed * 10).toString() + " kms/h");
-        }
+        });
     }
+}
 
-    export function GetPlayComponent($container: JQuery): trains.play.PlayComponents {
+export function GetPlayComponent($container: JQuery): IPlayComponents {
 
-        var $trainCanvas = $container.find('.ui-train-canvas');
-        var $trackCanvas = $container.find('.ui-track-canvas');
-        var $gridCanvas = $container.find('.ui-grid-canvas');
-        var $trainLogoCanvas = $container.find('.ui-train-logo-canvas');
+    const $trainCanvas = $container.find(".ui-train-canvas");
+    const $trackCanvas = $container.find(".ui-track-canvas");
+    const $gridCanvas = $container.find(".ui-grid-canvas");
+    const $trainLogoCanvas = $container.find(".ui-train-logo-canvas");
 
-        return {
-            $trainCanvas: $trainCanvas,
-            $trackCanvas: $trackCanvas,
-            $gridCanvas: $gridCanvas,
-            $trainLogoCanvas: $trainLogoCanvas,
-            $canvases: $().add($trainCanvas).add($trackCanvas).add($gridCanvas),
-            $trackButtons: $container.find('.ui-track-buttons'),
-            $trainButtons: $container.find('.ui-train-buttons'),
-            $globalButtons: $container.find('.ui-game-buttons'),
-            $trainName: $container.find('.ui-train-name'),
-            $mute: $container.find('.ui-mute'),
-            $autosave: $container.find('.ui-autosave')
-        };
-    }
-
-    export interface PlayComponents {
-        $trainCanvas: JQuery;
-        $trackCanvas: JQuery;
-        $gridCanvas: JQuery;
-        $canvases: JQuery;
-        $trackButtons: JQuery;
-        $trainButtons: JQuery;
-        $globalButtons: JQuery;
-        $trainLogoCanvas: JQuery;
-        $trainName: JQuery;
-        $mute: JQuery;
-        $autosave: JQuery;
-    }
+    return {
+        $trackCanvas,
+        $trainCanvas,
+        $gridCanvas,
+        $trainLogoCanvas,
+        $canvases: $().add($trainCanvas).add($trackCanvas).add($gridCanvas),
+        $trackButtons: $container.find(".ui-track-buttons"),
+        $trainButtons: $container.find(".ui-train-buttons"),
+        $globalButtons: $container.find(".ui-game-buttons"),
+        $trainName: $container.find(".ui-train-name"),
+        $mute: $container.find(".ui-mute"),
+        $autosave: $container.find(".ui-autosave")
+    };
 }

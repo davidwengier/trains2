@@ -1,62 +1,58 @@
-/// <reference path="../types/jqueryui.d.ts" />
+// tslint:disable-next-line:no-reference
+/// <reference path ="../types/jquery.d.ts"/>
 
-module trains.util {
+export class Util {
+    public static getRandomName(): string {
+        return "The " + this.getRandomElement(this.adjectives) + " " + this.getRandomElement(this.names);
+    }
+    public static toBoolean(value: string): boolean {
+        return value === "true";
+    }
+    public static selectButton($button: JQuery): void {
+        const $parent = $button.closest("ul");
+        $parent.find("button.selected").removeClass("selected");
+        $button.addClass("selected");
+    }
+    private static adjectives: string[] = [
+        "Flying",
+        "Haunted",
+        "Heavy",
+        "Electric",
+        "Diesel",
+        "Daylight",
+        "Outback",
+        "Overland",
+        "Underground",
+        "Western",
+        "Golden",
+        "Awkward",
+        "Livid",
+        "Courageous",
+        "Timid",
+        "Nervous",
+        "Emotional",
+        "Ferocious",
+        "Moronic",
+        "Cynical",
+        "Sassy",
+        "Reluctant",
+        "Majestic"
+    ];
 
-	var adjectives: Array<string> = [
-		"Flying",
-		"Haunted",
-		"Heavy",
-		"Electric",
-		"Diesel",
-		"Daylight",
-		"Outback",
-		"Overland",
-		"Underground",
-		"Western",
-		"Golden",
-		"Awkward",
-		"Livid",
-		"Courageous",
-		"Timid",
-		"Nervous",
-		"Emotional",
-		"Ferocious",
-		"Moronic",
-		"Cynical",
-		"Sassy",
-		"Reluctant",
-		"Majestic"
-	];
+    private static names: string[] = [
+        "Gary",
+        "Steve",
+        "Paul",
+        "George",
+        "Scotsman",
+        "Express",
+        "Wanderer",
+        "Locomotive",
+        "Warrior",
+        "Alfonse"
+    ];
 
-	var names: Array<string> = [
-		"Gary",
-		"Steve",
-		"Paul",
-		"George",
-		"Scotsman",
-		"Express",
-		"Wanderer",
-		"Locomotive",
-		"Warrior",
-		"Alfonse"
-	];
-
-	export function getRandomName(): string {
-		return "The " + getRandomElement(adjectives) + " " + getRandomElement(names);
-	}
-
-	function getRandomElement(items: Array<string>): string {
-		return items[Math.floor(Math.random() * items.length)];
-	}
-	
-	export function toBoolean(value: string): boolean {
-		if (value === "true") return true;
-		return false;
-	}
-	
-	export function selectButton($button: JQuery): void {
-		var $parent = $button.closest('ul');
-		$parent.find('button.selected').removeClass('selected');
-		$button.addClass('selected');
-	}
+    private static getRandomElement(items: string[]): string {
+        return items[Math.floor(Math.random() * items.length)];
+    }
 }

@@ -1,6 +1,6 @@
-import { ParticleBase } from "ParticleBase";
-import { ParticleColor } from "ParticleColor";
-import { ParticlePoint } from "ParticlePoint";
+import { ParticleBase } from "../ParticleBase";
+import { ParticleColor } from "../ParticleColor";
+import { ParticlePoint } from "../ParticlePoint";
 
 export class SmokeParticle extends ParticleBase {
     public cloudNumber = (Math.random() * 5) + 4;

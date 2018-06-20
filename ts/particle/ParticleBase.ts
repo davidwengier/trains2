@@ -1,5 +1,5 @@
-import { ParticleColor } from "ParticleColor";
-import { ParticlePoint } from "ParticlePoint";
+import { ParticleColor } from "./ParticleColor";
+import { ParticlePoint } from "./ParticlePoint";
 
 export abstract class ParticleBase extends ParticlePoint {
     public life: number = 0;
