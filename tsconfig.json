@@ -13,13 +13,16 @@
         "noImplicitReturns": true,
         "noFallthroughCasesInSwitch": true,
 
-        "sourceMap": true,
+        "sourceMap": false,
         "removeComments": true,
         "preserveConstEnums": true,
+
         "outFile": "js/train.js",
-        
+        "typeRoots": [
+            "types/"
+        ]
     },
     "include": [
-        "ts/play.ts"
-      ]
+        "ts/PlayManager.ts"
+    ]
 }

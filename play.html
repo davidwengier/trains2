@@ -13,11 +13,12 @@
 	<link rel="stylesheet" href="css/lists.css">
 	<link rel="stylesheet" href="css/play.css">
 	<link rel="stylesheet" href="css/train_logo.css">
-
+	
 	<script src="scripts/jquery-1.11.2.min.js"></script>
 	<script src="scripts/jquery-ui.min.js"></script>
 	<script src="scripts/jquery.awesome-cursor.min.js"></script>
 
+	<script src="scripts/almond.js"></script>
 	<script src="js/train.js"></script>
 	<meta content="width=device-width, initial-scale=1, user-scalable=no" name="viewport">
 </head>
@@ -143,17 +144,7 @@
 		<canvas class="ui-train-canvas train-canvas" width="1200" height="560" style="width: 1200px; top: 23px; left: 40px;"></canvas>
 	</div>
 	<script type="text/javascript">
-		$(function () {
-			if (trains.play.InitialisePlay) {
-				var $container = $("#container");
-				trains.play.InitialisePlay($container);
-				if (location.search === "?debug") {
-					trains.play.GameBoard.showDiagnostics = true;
-				}
-			} else {
-				alert("trains.play.InitialisePlay: not found");
-			}
-		});
+		new (require("PlayManager").default)($("#container"));
 	</script>
 </body>
 
