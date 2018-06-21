@@ -267,7 +267,7 @@ export default class Board {
                     break;
                 }
                 case "removecarriage": {
-                    this.selectedTrain.removeEndCarriage(this.selectedTrain);
+                    this.selectedTrain.removeEndCarriage();
                     break;
                 }
             }
