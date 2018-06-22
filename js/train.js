@@ -1821,7 +1821,20 @@ define("Board", ["require", "exports", "BoardRenderer", "GameEvent", "GameLoop",
         };
         Board.prototype.saveCells = function () {
             if (util_2.default.toBoolean(localStorage.getItem("autosave") || "false")) {
-                localStorage.setItem("cells", JSON.stringify(this.cells));
+                var cellsToSave = {};
+                for (var id in this.cells) {
+                    var theCell = this.cells[id];
+                    cellsToSave[id] = {
+                        id: theCell.id,
+                        column: theCell.column,
+                        row: theCell.row,
+                        cellSize: theCell.cellSize,
+                        direction: theCell.direction,
+                        happy: theCell.happy,
+                        switchState: theCell.switchState
+                    };
+                }
+                localStorage.setItem("cells", JSON.stringify(cellsToSave));
             }
         };
         Board.prototype.getGridCoord = function (value) {
