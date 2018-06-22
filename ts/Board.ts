@@ -134,8 +134,7 @@ export default class Board {
             for (const id in savedCells) {
                 if (savedCells.hasOwnProperty(id)) {
                     const theCell = savedCells[id] as Cell;
-                    const newCell = new Track(theCell.id, theCell.column, theCell.row, theCell.cellSize,
-                        this.trackSpriteCollection, this);
+                    const newCell = new Track(theCell.id, theCell.column, theCell.row, theCell.cellSize, this.trackSpriteCollection, this);
                     newCell.direction = theCell.direction;
                     newCell.happy = theCell.happy;
                     newCell.switchState = theCell.switchState;
@@ -152,7 +151,20 @@ export default class Board {
 
     public saveCells(): void {
         if (Util.toBoolean(localStorage.getItem("autosave") || "false")) {
-            localStorage.setItem("cells", JSON.stringify(this.cells));
+            var cellsToSave: any = {};
+            for (const id in this.cells) {
+                const theCell = this.cells[id] as Cell;
+                cellsToSave[id] = {
+                    id: theCell.id,
+                    column: theCell.column,
+                    row: theCell.row,
+                    cellSize: theCell.cellSize,
+                    direction: theCell.direction,
+                    happy: theCell.happy,
+                    switchState: theCell.switchState
+                };
+            }
+            localStorage.setItem("cells", JSON.stringify(cellsToSave));
         }
     }
 
