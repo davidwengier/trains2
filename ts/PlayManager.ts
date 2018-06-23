@@ -14,6 +14,8 @@ export default class PlayManager {
         this.playComponents = this.GetPlayComponent($container);
         this.gameBoard = new Board(this.playComponents);
 
+        this.gameBoard.showDiagnostics = location.search === "?debug";
+
         const top = ($(window).height() - this.gameBoard.canvasHeight) / 2;
         const left = ($(window).width() - this.gameBoard.canvasWidth) / 2;
 
