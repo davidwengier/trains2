@@ -2222,6 +2222,7 @@ define("PlayManager", ["require", "exports", "Board", "GameEvent", "util"], func
             this.animationEndEventString = "webkitAnimationEnd mozAnimationEnd MSAnimationEnd onanimationend animationend";
             this.playComponents = this.GetPlayComponent($container);
             this.gameBoard = new Board_1.default(this.playComponents);
+            this.gameBoard.showDiagnostics = location.search === "?debug";
             var top = ($(window).height() - this.gameBoard.canvasHeight) / 2;
             var left = ($(window).width() - this.gameBoard.canvasWidth) / 2;
             $("body").height($(window).height());
