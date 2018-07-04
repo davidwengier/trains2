@@ -382,9 +382,10 @@ export default class Board {
     }
 
     private cellMoveOver(event: MouseEvent): void {
-        if (event.buttons === 1 && this.tool !== Tool.Train
-            && this.tool !== Tool.Rotate && this.tool !== Tool.Pointer) {
+        if (event.buttons === 1 && (this.tool === Tool.Track || this.tool === Tool.Eraser)) {
             this.cellClick(event);
+        } else if (event.buttons === 2) {
+            this.cellRightClick(event);
         }
     }
 
