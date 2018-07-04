@@ -2052,9 +2052,11 @@ define("Board", ["require", "exports", "BoardRenderer", "GameEvent", "GameLoop",
             }
         };
         Board.prototype.cellMoveOver = function (event) {
-            if (event.buttons === 1 && this.tool !== Tool_1.Tool.Train
-                && this.tool !== Tool_1.Tool.Rotate && this.tool !== Tool_1.Tool.Pointer) {
+            if (event.buttons === 1 && (this.tool === Tool_1.Tool.Track || this.tool === Tool_1.Tool.Eraser)) {
                 this.cellClick(event);
+            }
+            else if (event.buttons === 2) {
+                this.cellRightClick(event);
             }
         };
         Board.prototype.cellTouch = function (event) {
