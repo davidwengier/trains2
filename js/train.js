@@ -1,7 +1,10 @@
 var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -282,59 +285,60 @@ define("Cell", ["require", "exports", "Direction"], function (require, exports, 
             }, 10);
         };
         Cell.prototype.getDirectionToUse = function (lastCell) {
+            var sw = this.switchState;
             if (lastCell !== undefined) {
                 var neighbours = this.gameBoard.getNeighbouringCells(lastCell.column, lastCell.row);
                 if (this.direction === Direction_1.Direction.LeftUpLeftDown) {
                     if (lastCell !== undefined && lastCell.isConnectedDown() && neighbours.down === this) {
                         if (!this.switchState) {
-                            this.switchTrack();
+                            sw = !sw;
                         }
                     }
                     else if (lastCell !== undefined && lastCell.isConnectedUp() && neighbours.up === this) {
                         if (this.switchState) {
-                            this.switchTrack();
+                            sw = !sw;
                         }
                     }
-                    return this.switchState ? Direction_1.Direction.LeftUp : Direction_1.Direction.LeftDown;
+                    return sw ? Direction_1.Direction.LeftUp : Direction_1.Direction.LeftDown;
                 }
                 else if (this.direction === Direction_1.Direction.LeftUpRightUp) {
                     if (lastCell !== undefined && lastCell.isConnectedLeft() && neighbours.left === this) {
                         if (this.switchState) {
-                            this.switchTrack();
+                            sw = !sw;
                         }
                     }
                     else if (lastCell !== undefined && lastCell.isConnectedRight() && neighbours.right === this) {
                         if (!this.switchState) {
-                            this.switchTrack();
+                            sw = !sw;
                         }
                     }
-                    return this.switchState ? Direction_1.Direction.LeftUp : Direction_1.Direction.RightUp;
+                    return sw ? Direction_1.Direction.LeftUp : Direction_1.Direction.RightUp;
                 }
                 else if (this.direction === Direction_1.Direction.RightDownLeftDown) {
                     if (lastCell !== undefined && lastCell.isConnectedLeft() && neighbours.left === this) {
                         if (this.switchState) {
-                            this.switchTrack();
+                            sw = !sw;
                         }
                     }
                     else if (lastCell !== undefined && lastCell.isConnectedRight() && neighbours.right === this) {
                         if (!this.switchState) {
-                            this.switchTrack();
+                            sw = !sw;
                         }
                     }
-                    return this.switchState ? Direction_1.Direction.LeftDown : Direction_1.Direction.RightDown;
+                    return sw ? Direction_1.Direction.LeftDown : Direction_1.Direction.RightDown;
                 }
                 else if (this.direction === Direction_1.Direction.RightDownRightUp) {
                     if (lastCell !== undefined && lastCell.isConnectedDown() && neighbours.down === this) {
                         if (!this.switchState) {
-                            this.switchTrack();
+                            sw = !sw;
                         }
                     }
                     else if (lastCell !== undefined && lastCell.isConnectedUp() && neighbours.up === this) {
                         if (this.switchState) {
-                            this.switchTrack();
+                            sw = !sw;
                         }
                     }
-                    return this.switchState ? Direction_1.Direction.RightUp : Direction_1.Direction.RightDown;
+                    return sw ? Direction_1.Direction.RightUp : Direction_1.Direction.RightDown;
                 }
             }
             return this.direction;
@@ -962,8 +966,8 @@ define("Train", ["require", "exports", "Direction", "GameEvent", "particle/types
                 var cell = this.GameBoard.getCell(column, row);
                 if (cell !== undefined) {
                     var result = this.getNewCoordsForTrain(cell, this.coords, speed);
-                    if (checkCollision && this.willNotHaveAFunTimeAt(result.coords)) {
-                        this.waitForTrafficToClear(result.coords);
+                    if (checkCollision && this.willNotHaveAFunTimeAt()) {
+                        this.waitForTrafficToClear();
                         return;
                     }
                     this.coords = result.coords;
@@ -1179,7 +1183,7 @@ define("Train", ["require", "exports", "Direction", "GameEvent", "particle/types
         Train.prototype.zeroIncrement = function (input) {
             return (input === 0) ? input + 0.001 : input;
         };
-        Train.prototype.willNotHaveAFunTimeAt = function (_) {
+        Train.prototype.willNotHaveAFunTimeAt = function () {
             var _this = this;
             var frontCoords = this.getFrontOfTrain(1);
             var myColumn = this.GameBoard.getGridCoord(frontCoords.currentX);
@@ -1197,11 +1201,11 @@ define("Train", ["require", "exports", "Direction", "GameEvent", "particle/types
                 return false;
             });
         };
-        Train.prototype.waitForTrafficToClear = function (coords) {
+        Train.prototype.waitForTrafficToClear = function () {
             var _this = this;
             this.setPaused(true);
             var interval = setInterval(function () {
-                if (!_this.willNotHaveAFunTimeAt(coords)) {
+                if (!_this.willNotHaveAFunTimeAt()) {
                     clearInterval(interval);
                     _this.setPaused(false);
                 }
