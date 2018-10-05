@@ -163,8 +163,8 @@ export default class Train {
             const cell = this.GameBoard.getCell(column, row);
             if (cell !== undefined) {
                 const result = this.getNewCoordsForTrain(cell, this.coords, speed);
-                if (checkCollision && this.willNotHaveAFunTimeAt(result.coords)) {
-                    this.waitForTrafficToClear(result.coords);
+                if (checkCollision && this.willNotHaveAFunTimeAt()) {
+                    this.waitForTrafficToClear();
                     return;
                 }
 
@@ -440,7 +440,7 @@ export default class Train {
         return (input === 0) ? input + 0.001 : input;
     }
 
-    private willNotHaveAFunTimeAt(_: ITrainCoords): boolean {
+    private willNotHaveAFunTimeAt(): boolean {
         const frontCoords = this.getFrontOfTrain(1);
         const myColumn = this.GameBoard.getGridCoord(frontCoords.currentX);
         const myRow = this.GameBoard.getGridCoord(frontCoords.currentY);
@@ -454,10 +454,10 @@ export default class Train {
         });
     }
 
-    private waitForTrafficToClear(coords: ITrainCoords) {
+    private waitForTrafficToClear() {
         this.setPaused(true);
         const interval = setInterval(() => {
-            if (!this.willNotHaveAFunTimeAt(coords)) {
+            if (!this.willNotHaveAFunTimeAt()) {
                 clearInterval(interval);
                 this.setPaused(false);
             }
