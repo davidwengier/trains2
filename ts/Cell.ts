@@ -255,36 +255,37 @@ export default abstract class Cell {
     }
 
     public getDirectionToUse(lastCell: Cell | undefined): Direction {
+        var sw = this.switchState;
         if (lastCell !== undefined) {
             const neighbours = this.gameBoard.getNeighbouringCells(lastCell.column, lastCell.row);
             if (this.direction === Direction.LeftUpLeftDown) {
                 if (lastCell !== undefined && lastCell.isConnectedDown() && neighbours.down === this) {
-                    if (!this.switchState) { this.switchTrack(); }
+                    if (!this.switchState) { sw = !sw; }
                 } else if (lastCell !== undefined && lastCell.isConnectedUp() && neighbours.up === this) {
-                    if (this.switchState) { this.switchTrack(); }
+                    if (this.switchState) { sw = !sw; }
                 }
-                return this.switchState ? Direction.LeftUp : Direction.LeftDown;
+                return sw ? Direction.LeftUp : Direction.LeftDown;
             } else if (this.direction === Direction.LeftUpRightUp) {
                 if (lastCell !== undefined && lastCell.isConnectedLeft() && neighbours.left === this) {
-                    if (this.switchState) { this.switchTrack(); }
+                    if (this.switchState) { sw = !sw; }
                 } else if (lastCell !== undefined && lastCell.isConnectedRight() && neighbours.right === this) {
-                    if (!this.switchState) { this.switchTrack(); }
+                    if (!this.switchState) { sw = !sw; }
                 }
-                return this.switchState ? Direction.LeftUp : Direction.RightUp;
+                return sw ? Direction.LeftUp : Direction.RightUp;
             } else if (this.direction === Direction.RightDownLeftDown) {
                 if (lastCell !== undefined && lastCell.isConnectedLeft() && neighbours.left === this) {
-                    if (this.switchState) { this.switchTrack(); }
+                    if (this.switchState) { sw = !sw; }
                 } else if (lastCell !== undefined && lastCell.isConnectedRight() && neighbours.right === this) {
-                    if (!this.switchState) { this.switchTrack(); }
+                    if (!this.switchState) { sw = !sw; }
                 }
-                return this.switchState ? Direction.LeftDown : Direction.RightDown;
+                return sw ? Direction.LeftDown : Direction.RightDown;
             } else if (this.direction === Direction.RightDownRightUp) {
                 if (lastCell !== undefined && lastCell.isConnectedDown() && neighbours.down === this) {
-                    if (!this.switchState) { this.switchTrack(); }
+                    if (!this.switchState) { sw = !sw; }
                 } else if (lastCell !== undefined && lastCell.isConnectedUp() && neighbours.up === this) {
-                    if (this.switchState) { this.switchTrack(); }
+                    if (this.switchState) { sw = !sw; }
                 }
-                return this.switchState ? Direction.RightUp : Direction.RightDown;
+                return sw ? Direction.RightUp : Direction.RightDown;
             }
         }
         return this.direction;
